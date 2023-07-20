@@ -1,8 +1,14 @@
-import { Equals, IsDate, IsDateString, IsEmail, IsString, MinLength, } from "class-validator";
+import { Optional } from "@nestjs/common";
+import { Transform } from "class-transformer";
+import { IsDate, IsEmail, IsString, Matches, MaxDate, MinLength, } from "class-validator";
+import { Match } from "../helpers/class-validator/match.decorator";
+import { RemoveExtraSpaces } from "../helpers/class-validator/remove-extra-spaces.decorator";
 
 export abstract class CreateUserDto {
     @IsString()
+    @Matches(/^[A-Za-z0-9_\-\s\p{Emoji}]+$/, { message: "Invalid characters in the username" })
     @MinLength(3)
+    @RemoveExtraSpaces()
     username: string;
 
     @IsEmail({}, { message: 'This is not a valid email' })
@@ -14,10 +20,12 @@ export abstract class CreateUserDto {
 
     @IsString()
     @MinLength(8, { message: "Repeat password must be at least 8 characters long" })
-    @Equals('password', { message: "Passwords don't match" })
+    @Match('password', { message: "Passwords don't match" })
     repeatPassword: string;
 
-    @IsDateString()
+    @Optional()
+    @Transform(({ value }) => value ? new Date(value) : new Date())
     @IsDate()
-    dateOfBirth: Date = new Date();
+    @MaxDate(new Date())
+    dateOfBirth: Date;
 }

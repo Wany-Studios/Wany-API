@@ -1,18 +1,21 @@
-import { BadRequestException, Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { BadRequestException, Controller, Get, Param, Req, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './user.entity';
 import { handleIsInternalServerError, isError, } from '../utils';
+import { EnsureIsAuthenticatedGuard } from '../auth/auth.guard';
+import { Request } from 'express';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) { }
 
-  @Get()
-  async allUsers(): Promise<User[]> {
-    return await this.userService.find();
+  @UseGuards(EnsureIsAuthenticatedGuard)
+  @Get('/me')
+  getInfo(@Req() req: Request) {
+    return { user: req.user };
   }
 
-  @Get('/:username')
+  @Get('/public/:username')
   async byUsername(@Param('username') username: string): Promise<User> {
     if (!username || !username.trim()) {
       throw new BadRequestException("username cannot be empty")
@@ -25,6 +28,12 @@ export class UserController {
       throw user;
     }
 
-    return user;
+    return {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      avatar: user.avatar,
+      role: user.role,
+    };
   }
 }

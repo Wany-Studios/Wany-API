@@ -1,4 +1,3 @@
-import { UserRepository } from '../user/user.entity';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import environment from '../environment';

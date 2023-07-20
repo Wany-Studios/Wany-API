@@ -8,11 +8,4 @@ export class AppController {
   getStatus(): number {
     return 200;
   }
-
-  @UseGuards(EnsureIsAuthenticatedGuard)
-  @Get('/info')
-  getInfo(@Req() req: Request) {
-    const user = req.user;
-    return { user };
-  }
 }

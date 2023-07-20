@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
 import {
   Entity,
   Column,
@@ -22,7 +21,16 @@ export class User {
   @Column()
   birth_date?: Date;
 
-  @Column({ unique: true })
+  @Column({
+    unique: true, transformer: {
+      to(value) {
+        return value.toLowerCase();
+      },
+      from(value) {
+        return value;
+      }
+    }
+  })
   username?: string;
 
   @Column({ unique: true })
@@ -52,4 +60,4 @@ export class User {
 }
 
 @Injectable()
-export class UserRepository extends Repository<User> {}
+export class UserRepository extends Repository<User> { }
