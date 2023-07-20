@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { User, UserRepository } from './user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { HashService } from './hash.service';
+import { HashService } from './hash/hash.service';
 import { CreateUserDto } from '../dtos/create-user.dto';
 import { InsertResult } from 'typeorm';
 import { randomUUID } from 'crypto';

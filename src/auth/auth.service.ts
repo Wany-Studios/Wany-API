@@ -3,7 +3,7 @@ import { BadRequestException, Injectable, InternalServerErrorException } from '@
 import { PassportSerializer, PassportStrategy } from '@nestjs/passport';
 import { Role, User } from '../user/user.entity';
 import { UserService } from '../user/user.service';
-import { HashService } from '../user/hash.service';
+import { HashService } from '../user/hash/hash.service';
 import { isError } from '../utils';
 
 export interface JwtData {

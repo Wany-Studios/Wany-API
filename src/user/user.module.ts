@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { DatabaseModule } from '../database/database.module';
-import { HashService } from './hash.service';
+import { HashService } from './hash/hash.service';
 
 @Module({
   imports: [DatabaseModule],

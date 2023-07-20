@@ -1,16 +1,23 @@
-import { Body, Controller, Post, UseGuards, Res, Req, Get } from '@nestjs/common';
-import express from "express"
+import { Body, Controller, Post, UseGuards, Res, Req, Get, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from '../dtos/create-user.dto';
 import { validateOrReject } from 'class-validator';
 import { LocalAuthGuard } from './auth.guard';
 import { UserService } from '../user/user.service';
-import { isError } from '../utils';
+import { CriticalException, is, isError, throwIfIsError } from '../utils';
 import { Role } from '../user/user.entity';
 import { randomUUID } from 'crypto';
+import { EmailService } from '../email/email.service';
+import { EmailConfirmationTokenService } from '../email/confirmation/token/email-confirmation-token.service';
+import { EmailConfirmation } from '../email/confirmation/email-confirmation.entity';
+import { EmailConfirmationService } from '../email/confirmation/email-confirmation.service';
 
 @Controller('auth')
 export class AuthController {
-    constructor(private readonly userService: UserService) { }
+    constructor(
+        private readonly userService: UserService,
+        private readonly emailService: EmailService,
+        private readonly emailConfirmationService: EmailConfirmationService,
+    ) { }
 
     @Post('/signup')
     async register(@Body() data: CreateUserDto): Promise<any> {
@@ -30,7 +37,29 @@ export class AuthController {
 
         if (isError(result)) throw result;
 
-        return { ...result }
+        const user = await this.userService.findUserByUsername(data.username);
+
+        if (isError(user)) {
+            if (is(user, NotFoundException)) {
+                throw new CriticalException('A critical error has occurred. His account seems to have been created, but apparently something went wrong. Please report this to the Wany team.');
+            }
+
+            throw user;
+        }
+
+        // generate email confirmation token, save in database and then send in the user email
+        const emailConfirmation: EmailConfirmation = {
+            id: randomUUID(),
+            email: user.email!,
+            token: this.emailConfirmationService.generateToken(),
+            used: false,
+            user_id: user.id!
+        }
+
+        throwIfIsError(await this.emailConfirmationService.createEmailConfirmation(emailConfirmation));
+        throwIfIsError(await this.emailService.sendConfirmationEmail(user, emailConfirmation));
+
+        return result;
     }
 
     @UseGuards(LocalAuthGuard)

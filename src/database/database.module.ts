@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import environment from '../environment';
 import { User } from '../user/user.entity';
 import { DataSourceOptions } from 'typeorm';
+import { EmailConfirmation } from '../email/confirmation/email-confirmation.entity';
 
 const config: DataSourceOptions = {
   type: environment.database.type as any,
@@ -16,7 +17,11 @@ const config: DataSourceOptions = {
 };
 
 @Module({
-  imports: [TypeOrmModule.forRoot(config), TypeOrmModule.forFeature([User])],
+  imports: [
+    TypeOrmModule.forRoot(config),
+    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([EmailConfirmation]),
+  ],
   exports: [TypeOrmModule],
   providers: [],
 })
