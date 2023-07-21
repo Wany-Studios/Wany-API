@@ -1,9 +1,9 @@
 import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { User, UserRepository } from './user.entity';
+import { User, UserRepository } from '../../entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { HashService } from './hash/hash.service';
+import { HashService } from '../../services/hash.service';
 import { InsertResult } from 'typeorm';
-import { isError } from '../utils';
+import { isError } from '../../utils';
 
 @Injectable()
 export class UserService {

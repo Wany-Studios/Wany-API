@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import environment from '../environment';
-import { User } from '../user/user.entity';
+import { User } from '../../entities/user.entity';
 import { DataSourceOptions } from 'typeorm';
-import { EmailConfirmation } from '../email/confirmation/email-confirmation.entity';
+import { EmailConfirmation } from '../../entities/email-confirmation.entity';
+import environment from '../../environment';
 
 const config: DataSourceOptions = {
   type: environment.database.type as any,

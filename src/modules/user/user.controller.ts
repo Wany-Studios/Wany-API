@@ -1,7 +1,7 @@
 import { BadRequestException, Controller, Get, Param, Req, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
-import { User } from './user.entity';
-import { handleIsInternalServerError, isError, } from '../utils';
+import { User } from '../../entities/user.entity';
+import { handleIsInternalServerError, isError, } from '../../utils';
 import { EnsureIsAuthenticatedGuard } from '../auth/auth.guard';
 import { Request } from 'express';
 

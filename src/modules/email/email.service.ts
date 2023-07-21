@@ -1,8 +1,8 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import environment from '../environment';
-import { User } from '../user/user.entity';
-import { EmailConfirmation } from './confirmation/email-confirmation.entity';
+import { User } from '../../entities/user.entity';
+import { EmailConfirmation } from '../../entities/email-confirmation.entity';
+import environment from '../../environment';
 
 @Injectable()
 export class EmailService {

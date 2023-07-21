@@ -1,8 +1,8 @@
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { EmailConfirmation, EmailConfirmationRepository } from './email-confirmation.entity';
+import { EmailConfirmation, EmailConfirmationRepository } from '../../../entities/email-confirmation.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { InsertResult } from 'typeorm';
-import { EmailConfirmationTokenService } from './token/email-confirmation-token.service';
+import { EmailConfirmationTokenService } from '../../../services/email-confirmation-token.service';
 
 @Injectable()
 export class EmailConfirmationService {

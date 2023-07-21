@@ -1,10 +1,10 @@
 import { Strategy as LocalStrategy } from "passport-local";
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PassportSerializer, PassportStrategy } from '@nestjs/passport';
-import { Role, User } from '../user/user.entity';
-import { UserService } from '../user/user.service';
-import { HashService } from '../user/hash/hash.service';
-import { isError } from '../utils';
+import { Role, User } from '../../entities/user.entity';
+import { UserService } from "../user/user.service";
+import { HashService } from "../../services/hash.service";
+import { isError } from "../../utils";
 
 export interface JwtData {
     sub: string;

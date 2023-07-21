@@ -1,14 +1,14 @@
-import { Body, Controller, Post, UseGuards, Res, Req, Get, NotFoundException, Param, BadRequestException } from '@nestjs/common';
-import { CreateUserDto } from '../dtos/create-user.dto';
+import { Body, Controller, Post, UseGuards, Req, Get, NotFoundException, Param, BadRequestException } from '@nestjs/common';
+import { CreateUserDto } from '../../dtos/create-user.dto';
 import { validateOrReject } from 'class-validator';
 import { EnsureIsAuthenticatedGuard, LocalAuthGuard } from './auth.guard';
 import { UserService } from '../user/user.service';
-import { CriticalException, is, isError, throwIfIsError } from '../utils';
-import { Role, User } from '../user/user.entity';
+import { CriticalException, is, isError, throwIfIsError } from '../../utils';
+import { Role, User } from '../../entities/user.entity';
 import { randomUUID } from 'crypto';
 import { EmailService } from '../email/email.service';
-import { EmailConfirmation } from '../email/confirmation/email-confirmation.entity';
-import { EmailConfirmationService } from '../email/confirmation/email-confirmation.service';
+import { EmailConfirmation } from '../../entities/email-confirmation.entity';
+import { EmailConfirmationService } from '../email/email-confirmation/email-confirmation.service';
 import { Request } from 'express';
 
 @Controller('auth')

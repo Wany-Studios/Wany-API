@@ -1,8 +1,8 @@
-import environment from '../environment';
 import { Module } from '@nestjs/common';
 import { EmailService } from './email.service';
-import { EmailConfirmationModule } from './confirmation/email-confirmation.module';
+import { EmailConfirmationModule } from './email-confirmation/email-confirmation.module';
 import { MailerModule } from '@nestjs-modules/mailer';
+import environment from '../../environment';
 
 // TODO: verificar pq email não está sendo enviado
 @Module({
