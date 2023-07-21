@@ -6,9 +6,12 @@ import environment from '../../environment';
 
 @Injectable()
 export class EmailService {
-    constructor(private mailerService: MailerService) { }
+    constructor(private mailerService: MailerService) {}
 
-    async sendConfirmationEmail(user: User, emailCofirmation: EmailConfirmation) {
+    async sendConfirmationEmail(
+        user: User,
+        emailCofirmation: EmailConfirmation,
+    ) {
         return await this.sendEmail(
             user.email!,
             environment.mail.from,
@@ -26,13 +29,15 @@ export class EmailService {
 
                 <br />
 
-                <p>${user.username!.toUpperCase()}, Your email confirmation token is: ${emailCofirmation.token}</p>
+                <p>${user.username!.toUpperCase()}, Your email confirmation token is: ${
+                emailCofirmation.token
+            }</p>
                 <p>Sincerely,</p>
 
                 <p><strong>Wany's Team</strong></p>
             </body>
             </html>
-            `
+            `,
         );
     }
 
@@ -63,18 +68,31 @@ export class EmailService {
                 <p><strong>Wany's Team</strong></p>
             </body>
             </html>
-            `
+            `,
         );
     }
 
-    private async sendEmail(to: string, subject: string, text: string, html: string): Promise<null | InternalServerErrorException> {
+    private async sendEmail(
+        to: string,
+        subject: string,
+        text: string,
+        html: string,
+    ): Promise<null | InternalServerErrorException> {
         try {
             const from = environment.mail.from;
-            await this.mailerService.sendMail({ to, text, html, from, subject });
+            await this.mailerService.sendMail({
+                to,
+                text,
+                html,
+                from,
+                subject,
+            });
             return null;
-        }
-        catch (err) {
-            return new InternalServerErrorException('Failed to send email', err.message);
+        } catch (err) {
+            return new InternalServerErrorException(
+                'Failed to send email',
+                err.message,
+            );
         }
     }
 }

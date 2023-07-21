@@ -5,9 +5,9 @@ import { DatabaseModule } from '../database/database.module';
 import { HashService } from '../../services/hash.service';
 
 @Module({
-  imports: [DatabaseModule],
-  controllers: [UserController],
-  providers: [UserService, HashService],
-  exports: [UserService]
+    imports: [DatabaseModule],
+    controllers: [UserController],
+    providers: [UserService, HashService],
+    exports: [UserService],
 })
-export class UserModule { }
+export class UserModule {}

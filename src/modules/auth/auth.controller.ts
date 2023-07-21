@@ -1,4 +1,14 @@
-import { Body, Controller, Post, UseGuards, Req, Get, NotFoundException, Param, BadRequestException } from '@nestjs/common';
+import {
+    Body,
+    Controller,
+    Post,
+    UseGuards,
+    Req,
+    Get,
+    NotFoundException,
+    Param,
+    BadRequestException,
+} from '@nestjs/common';
 import { CreateUserDto } from '../../dtos/create-user.dto';
 import { validateOrReject } from 'class-validator';
 import { EnsureIsAuthenticatedGuard, LocalAuthGuard } from './auth.guard';
@@ -17,7 +27,7 @@ export class AuthController {
         private readonly userService: UserService,
         private readonly emailService: EmailService,
         private readonly emailConfirmationService: EmailConfirmationService,
-    ) { }
+    ) {}
 
     @Post('/signup')
     async register(@Body() data: CreateUserDto): Promise<any> {
@@ -32,7 +42,7 @@ export class AuthController {
             password,
             birth_date: dateOfBirth,
             role: Role.User,
-            verified: false
+            verified: false,
         });
 
         if (isError(result)) throw result;
@@ -41,7 +51,9 @@ export class AuthController {
 
         if (isError(user)) {
             if (is(user, NotFoundException)) {
-                throw new CriticalException('A critical error has occurred. His account seems to have been created, but apparently something went wrong. Please report this to the Wany team.');
+                throw new CriticalException(
+                    'A critical error has occurred. His account seems to have been created, but apparently something went wrong. Please report this to the Wany team.',
+                );
             }
 
             throw user;
@@ -53,50 +65,69 @@ export class AuthController {
             email: user.email!,
             token: this.emailConfirmationService.generateToken(),
             used: false,
-            user_id: user.id!
-        }
+            user_id: user.id!,
+        };
 
-        throwIfIsError(await this.emailConfirmationService.createEmailConfirmation(emailConfirmation));
-        throwIfIsError(await this.emailService.sendConfirmationEmail(user, emailConfirmation));
+        throwIfIsError(
+            await this.emailConfirmationService.createEmailConfirmation(
+                emailConfirmation,
+            ),
+        );
+        throwIfIsError(
+            await this.emailService.sendConfirmationEmail(
+                user,
+                emailConfirmation,
+            ),
+        );
 
         return {
-            message: 'Your account has been created successfully'
+            message: 'Your account has been created successfully',
         };
     }
 
     @UseGuards(EnsureIsAuthenticatedGuard)
     @Post('/email/verification/:token')
-    async verifyEmailConfirmationToken(@Req() req: Request, @Param('token') token: string) {
+    async verifyEmailConfirmationToken(
+        @Req() req: Request,
+        @Param('token') token: string,
+    ) {
         const user: User = req.user!;
-        const emailConfirmation = await this.emailConfirmationService.findEmailConfirmationWithToken(token);
+        const emailConfirmation =
+            await this.emailConfirmationService.findEmailConfirmationWithToken(
+                token,
+            );
         if (isError(emailConfirmation)) throw emailConfirmation;
 
         if (emailConfirmation.user_id !== user.id) {
-            throw new BadRequestException("Invalid email confirmation token");
+            throw new BadRequestException('Invalid email confirmation token');
         }
 
         if (emailConfirmation.used) {
-            throw new BadRequestException("This token is already used");
+            throw new BadRequestException('This token is already used');
         }
 
-        throwIfIsError(await this.emailConfirmationService.markEmailConfirmationTokenAsUsed(emailConfirmation.id));
+        throwIfIsError(
+            await this.emailConfirmationService.markEmailConfirmationTokenAsUsed(
+                emailConfirmation.id,
+            ),
+        );
 
         this.userService.update(user.id, { verified: true });
 
         return {
-            message: "Email verified successfully"
-        }
+            message: 'Email verified successfully',
+        };
     }
 
     @UseGuards(LocalAuthGuard)
     @Post('/signin')
     async login(): Promise<any> {
-        return { message: 'You are logged' }
+        return { message: 'You are logged' };
     }
 
     @Get('/logout')
     logout(@Req() req: any): any {
         req.session.destroy();
-        return { message: 'The user session has ended' }
+        return { message: 'The user session has ended' };
     }
 }

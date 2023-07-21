@@ -5,12 +5,8 @@ import { Module } from '@nestjs/common';
 import { EmailModule } from '../email/email.module';
 
 @Module({
-  imports: [
-    UserModule,
-    AuthModule,
-    EmailModule
-  ],
-  providers: [],
-  controllers: [AppController],
+    imports: [UserModule, AuthModule, EmailModule],
+    providers: [],
+    controllers: [AppController],
 })
-export class AppModule { }
+export class AppModule {}

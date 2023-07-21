@@ -1,5 +1,9 @@
 import { Module } from '@nestjs/common';
-import { AuthService, LocalStrategyService, SessionSerializerService } from './auth.service';
+import {
+    AuthService,
+    LocalStrategyService,
+    SessionSerializerService,
+} from './auth.service';
 import { AuthController } from './auth.controller';
 import { PassportModule } from '@nestjs/passport';
 import { EmailModule } from '../email/email.module';
@@ -10,10 +14,15 @@ import { HashService } from '../../services/hash.service';
     imports: [
         UserModule,
         PassportModule.register({ session: true }),
-        EmailModule
+        EmailModule,
     ],
-    providers: [AuthService, HashService, SessionSerializerService, LocalStrategyService],
+    providers: [
+        AuthService,
+        HashService,
+        SessionSerializerService,
+        LocalStrategyService,
+    ],
     controllers: [AuthController],
-    exports: []
+    exports: [],
 })
-export class AuthModule { }
+export class AuthModule {}

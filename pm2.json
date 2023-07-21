@@ -6,7 +6,7 @@
             "instances": 5,
             "exec_mode": "cluster",
             "env": {
-               "NODE_ENV": "production"
+                "NODE_ENV": "production"
             }
         }
     ]

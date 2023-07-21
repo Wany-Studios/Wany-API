@@ -4,8 +4,8 @@ import { Request } from 'express';
 
 @Controller()
 export class AppController {
-  @Get('/healthcheck')
-  getStatus(): number {
-    return 200;
-  }
+    @Get('/healthcheck')
+    getStatus(): number {
+        return 200;
+    }
 }

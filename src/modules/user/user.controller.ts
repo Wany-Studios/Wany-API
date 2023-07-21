@@ -1,39 +1,46 @@
-import { BadRequestException, Controller, Get, Param, Req, UseGuards } from '@nestjs/common';
+import {
+    BadRequestException,
+    Controller,
+    Get,
+    Param,
+    Req,
+    UseGuards,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from '../../entities/user.entity';
-import { handleIsInternalServerError, isError, } from '../../utils';
+import { handleIsInternalServerError, isError } from '../../utils';
 import { EnsureIsAuthenticatedGuard } from '../auth/auth.guard';
 import { Request } from 'express';
 
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) { }
+    constructor(private readonly userService: UserService) {}
 
-  @UseGuards(EnsureIsAuthenticatedGuard)
-  @Get('/me')
-  getInfo(@Req() req: Request) {
-    return { user: req.user };
-  }
-
-  @Get('/public/:username')
-  async byUsername(@Param('username') username: string): Promise<User> {
-    if (!username || !username.trim()) {
-      throw new BadRequestException("username cannot be empty")
+    @UseGuards(EnsureIsAuthenticatedGuard)
+    @Get('/me')
+    getInfo(@Req() req: Request) {
+        return { user: req.user };
     }
 
-    const user = await this.userService.findUserByUsername(username);
+    @Get('/public/:username')
+    async byUsername(@Param('username') username: string): Promise<User> {
+        if (!username || !username.trim()) {
+            throw new BadRequestException('username cannot be empty');
+        }
 
-    if (isError(user)) {
-      handleIsInternalServerError(user);
-      throw user;
+        const user = await this.userService.findUserByUsername(username);
+
+        if (isError(user)) {
+            handleIsInternalServerError(user);
+            throw user;
+        }
+
+        return {
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            avatar: user.avatar,
+            role: user.role,
+        };
     }
-
-    return {
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      avatar: user.avatar,
-      role: user.role,
-    };
-  }
 }

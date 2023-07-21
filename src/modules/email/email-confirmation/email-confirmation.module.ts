@@ -4,8 +4,8 @@ import { EmailConfirmationTokenService } from '../../../services/email-confirmat
 import { DatabaseModule } from '../../database/database.module';
 
 @Module({
-  imports: [DatabaseModule],
-  providers: [EmailConfirmationService, EmailConfirmationTokenService],
-  exports: [EmailConfirmationService, EmailConfirmationTokenService]
+    imports: [DatabaseModule],
+    providers: [EmailConfirmationService, EmailConfirmationTokenService],
+    exports: [EmailConfirmationService, EmailConfirmationTokenService],
 })
-export class EmailConfirmationModule { }
+export class EmailConfirmationModule {}

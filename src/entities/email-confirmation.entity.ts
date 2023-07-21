@@ -1,6 +1,15 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryColumn, Repository, UpdateDateColumn } from "typeorm";
-import { User } from "./user.entity";
-import { Injectable } from "@nestjs/common";
+import {
+    Column,
+    CreateDateColumn,
+    Entity,
+    JoinColumn,
+    ManyToOne,
+    PrimaryColumn,
+    Repository,
+    UpdateDateColumn,
+} from 'typeorm';
+import { User } from './user.entity';
+import { Injectable } from '@nestjs/common';
 
 @Entity()
 export class EmailConfirmation {
@@ -31,4 +40,4 @@ export class EmailConfirmation {
 }
 
 @Injectable()
-export class EmailConfirmationRepository extends Repository<EmailConfirmation> { }
+export class EmailConfirmationRepository extends Repository<EmailConfirmation> {}

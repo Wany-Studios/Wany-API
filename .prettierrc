@@ -1,4 +1,7 @@
 {
-  "singleQuote": true,
-  "trailingComma": "all"
+    "singleQuote": true,
+    "trailingComma": "all",
+    "editorconfig": true,
+    "tabWidth": 4,
+    "endOfLine": "crlf"
 }
