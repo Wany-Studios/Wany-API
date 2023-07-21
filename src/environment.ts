@@ -15,6 +15,7 @@ export default {
         host: '0.0.0.0',
         port: 3000,
         secure: process.env.HTTPS === 'true',
+        entities: [__dirname + '\\**\\*.entity{.ts,.js}'],
     },
     database: {
         type: 'mysql',

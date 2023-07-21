@@ -34,6 +34,7 @@ async function bootstrap() {
     app.use(passport.session());
 
     if (environment.isDevelopment) {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         const killPort = require('kill-port');
         await killPort(environment.server.port).catch(console.log);
     }

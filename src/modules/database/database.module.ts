@@ -5,6 +5,8 @@ import { DataSourceOptions } from 'typeorm';
 import { EmailConfirmation } from '../../entities/email-confirmation.entity';
 import environment from '../../environment';
 
+console.log(environment.server);
+
 const config: DataSourceOptions = {
     type: environment.database.type as any,
     host: environment.database.host,
@@ -12,7 +14,7 @@ const config: DataSourceOptions = {
     username: environment.database.username,
     password: environment.database.password,
     database: environment.database.name,
-    entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+    entities: environment.server.entities,
     synchronize: environment.isDevelopment,
 };
 
