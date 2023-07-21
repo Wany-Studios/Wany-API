@@ -2,9 +2,7 @@ import { BadRequestException, Injectable, InternalServerErrorException, NotFound
 import { User, UserRepository } from './user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { HashService } from './hash/hash.service';
-import { CreateUserDto } from '../dtos/create-user.dto';
 import { InsertResult } from 'typeorm';
-import { randomUUID } from 'crypto';
 import { isError } from '../utils';
 
 @Injectable()
@@ -13,6 +11,19 @@ export class UserService {
     @InjectRepository(User) private userRepository: UserRepository,
     private hashService: HashService
   ) { }
+
+  async update(userId: string, userDataToUpdate: Omit<User, 'id'>): Promise<User | NotFoundException> {
+    try {
+      if (isError(await this.findUserById(userId!))) {
+        return new NotFoundException("User does not exist");
+      }
+
+      return await this.userRepository.save({ ...userDataToUpdate, id: userId });
+    }
+    catch (err) {
+      return new InternalServerErrorException(err.message);
+    }
+  }
 
   async create(user: User): Promise<InsertResult | InternalServerErrorException | BadRequestException> {
     try {
@@ -28,8 +39,7 @@ export class UserService {
         return new BadRequestException(`Email ${user.email} is already registered`);
       }
 
-      const result = await this.userRepository.insert({ ...user!, password: await this.hashService.hashPassword(user.password!) });
-      return result;
+      return await this.userRepository.insert({ ...user!, password: await this.hashService.hashPassword(user.password!) });
     }
     catch (err) {
       return new InternalServerErrorException(err.message);

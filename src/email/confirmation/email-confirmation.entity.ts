@@ -7,9 +7,12 @@ export class EmailConfirmation {
     @PrimaryColumn()
     id: string;
 
-    @ManyToOne(type => User)
-    @JoinColumn()
+    @Column({ name: 'user_id' })
     user_id: string;
+
+    @ManyToOne(() => User, { nullable: false })
+    @JoinColumn({ name: 'user_id' })
+    user?: User;
 
     @Column()
     email: string;
