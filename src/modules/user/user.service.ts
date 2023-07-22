@@ -13,7 +13,7 @@ import { isError } from '../../utils';
 @Injectable()
 export class UserService {
     constructor(
-        @InjectRepository(User) private userRepository: UserRepository,
+        @InjectRepository(User) private readonly userRepository: UserRepository,
         private hashService: HashService,
     ) {}
 
@@ -72,8 +72,14 @@ export class UserService {
 
     async findUserById(
         id: string,
-    ): Promise<User | NotFoundException | InternalServerErrorException> {
+    ): Promise<
+        | User
+        | NotFoundException
+        | InternalServerErrorException
+        | BadRequestException
+    > {
         try {
+            if (!id) return new BadRequestException('User ID must be provided');
             const user = await this.userRepository.findOneBy({ id });
             if (!user) return new NotFoundException('User not found');
             return user;
@@ -84,8 +90,15 @@ export class UserService {
 
     async findUserByUsername(
         username: string,
-    ): Promise<User | NotFoundException | InternalServerErrorException> {
+    ): Promise<
+        | User
+        | NotFoundException
+        | InternalServerErrorException
+        | BadRequestException
+    > {
         try {
+            if (!username)
+                return new BadRequestException('Username must be provided');
             const user = await this.userRepository.findOneBy({ username });
             if (!user) return new NotFoundException('User not found');
             return user;
@@ -96,8 +109,15 @@ export class UserService {
 
     async findUserByEmail(
         email: string,
-    ): Promise<User | NotFoundException | InternalServerErrorException> {
+    ): Promise<
+        | User
+        | NotFoundException
+        | InternalServerErrorException
+        | BadRequestException
+    > {
         try {
+            if (!email)
+                return new BadRequestException('Email must be provided');
             const user = await this.userRepository.findOneBy({ email });
             if (!user) return new NotFoundException('User not found');
             return user;
@@ -108,8 +128,17 @@ export class UserService {
 
     async findUserByUsernameOrEmail(
         usernameOrEmail: string,
-    ): Promise<User | NotFoundException | InternalServerErrorException> {
+    ): Promise<
+        | User
+        | NotFoundException
+        | InternalServerErrorException
+        | BadRequestException
+    > {
         try {
+            if (!usernameOrEmail)
+                return new BadRequestException(
+                    'Username or email must be provided',
+                );
             const user = await this.userRepository.findOneBy([
                 { username: usernameOrEmail },
                 { email: usernameOrEmail },

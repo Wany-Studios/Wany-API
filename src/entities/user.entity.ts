@@ -16,7 +16,7 @@ export enum Role {
 @Entity()
 export class User {
     @PrimaryColumn()
-    id?: string;
+    id: string;
 
     @Column()
     birth_date?: Date;

@@ -4,7 +4,6 @@ import { EmailConfirmationModule } from './email-confirmation/email-confirmation
 import { MailerModule } from '@nestjs-modules/mailer';
 import environment from '../../environment';
 
-// TODO: verificar pq email não está sendo enviado
 @Module({
     imports: [
         MailerModule.forRoot({

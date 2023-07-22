@@ -5,6 +5,7 @@ import {
     UnauthorizedException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { Request } from 'express';
 
 @Injectable()
 export class LocalAuthGuard extends AuthGuard('local') {
@@ -19,7 +20,7 @@ export class LocalAuthGuard extends AuthGuard('local') {
 @Injectable()
 export class EnsureIsAuthenticatedGuard implements CanActivate {
     async canActivate(context: ExecutionContext) {
-        const request = context.switchToHttp().getRequest();
+        const request = context.switchToHttp().getRequest<Request>();
         if (request.isAuthenticated()) return true;
         throw new UnauthorizedException('You must be logged.');
     }

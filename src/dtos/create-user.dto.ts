@@ -18,9 +18,11 @@ export abstract class CreateUserDto {
     })
     @MinLength(3)
     @RemoveExtraSpaces()
+    @Transform(({ value }) => value && value.toLowerCase())
     username: string;
 
     @IsEmail({}, { message: 'This is not a valid email' })
+    @Transform(({ value }) => value && value.toLowerCase())
     email: string;
 
     @IsString()

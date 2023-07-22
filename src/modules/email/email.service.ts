@@ -41,7 +41,47 @@ export class EmailService {
         );
     }
 
-    async sendWelcomeNewUser(user: User) {
+    async sendResetPasswordTokenEmail(user: User, token: string) {
+        const resetPasswordEndpoint = `${environment.client.url}reset-password?token=${token}`;
+
+        return await this.sendEmail(
+            user.email!,
+            environment.mail.from,
+            'Reset Password',
+            `<!DOCTYPE html>
+            <html>
+            <head>
+                <title>Reset Your Password - Wany</title>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            </head>
+            <body>
+                <h1>Reset Your Password</h1>
+
+                <br />
+
+                <p>Hello ${user.username!.toUpperCase()},</p>
+                <p>We have received a request to reset your password for your account on Wany.</p>
+                <p>If you made this request, please click the link below to reset your password:</p>
+
+                <p>
+                    <a href="${resetPasswordEndpoint}" target="_blank">
+                        ${resetPasswordEndpoint}
+                    </a>
+                </p>
+
+
+                <p>This link will expire in 30 minutes. If you didn't make this request, you can safely ignore this email.</p>
+                
+                <p>Best,</p>
+                <p><strong>Wany's Team</strong></p>
+            </body>
+            </html>
+            `,
+        );
+    }
+
+    async sendWelcomeNewUserEmail(user: User) {
         return await this.sendEmail(
             user.email!,
             environment.mail.from,

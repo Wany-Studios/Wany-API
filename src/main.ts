@@ -21,7 +21,6 @@ async function bootstrap() {
             resave: false,
             saveUninitialized: false,
             name: 'wany-delt4d',
-            // store: new fileStore(),
             cookie: {
                 sameSite: 'strict',
                 secure: environment.secure,

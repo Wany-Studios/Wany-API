@@ -4,8 +4,7 @@ import { User } from '../../entities/user.entity';
 import { DataSourceOptions } from 'typeorm';
 import { EmailConfirmation } from '../../entities/email-confirmation.entity';
 import environment from '../../environment';
-
-console.log(environment.server);
+import { ResetPassword } from '../../entities/reset-password.entity';
 
 const config: DataSourceOptions = {
     type: environment.database.type as any,
@@ -23,6 +22,7 @@ const config: DataSourceOptions = {
         TypeOrmModule.forRoot(config),
         TypeOrmModule.forFeature([User]),
         TypeOrmModule.forFeature([EmailConfirmation]),
+        TypeOrmModule.forFeature([ResetPassword]),
     ],
     exports: [TypeOrmModule],
     providers: [],

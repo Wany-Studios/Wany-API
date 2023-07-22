@@ -9,14 +9,14 @@ import {
 } from '../../../entities/email-confirmation.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { InsertResult } from 'typeorm';
-import { EmailConfirmationTokenService } from '../../../services/email-confirmation-token.service';
+import { TokenService } from '../../../services/token.service';
 
 @Injectable()
 export class EmailConfirmationService {
     constructor(
         @InjectRepository(EmailConfirmation)
         private emailConfirmationRepository: EmailConfirmationRepository,
-        private readonly emailConfirmationTokenService: EmailConfirmationTokenService,
+        private readonly emailConfirmationTokenService: TokenService,
     ) {}
 
     generateToken() {

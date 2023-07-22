@@ -9,16 +9,20 @@ import { PassportModule } from '@nestjs/passport';
 import { EmailModule } from '../email/email.module';
 import { UserModule } from '../user/user.module';
 import { HashService } from '../../services/hash.service';
+import { TokenService } from '../../services/token.service';
+import { DatabaseModule } from '../database/database.module';
 
 @Module({
     imports: [
         UserModule,
         PassportModule.register({ session: true }),
         EmailModule,
+        DatabaseModule,
     ],
     providers: [
         AuthService,
         HashService,
+        TokenService,
         SessionSerializerService,
         LocalStrategyService,
     ],

@@ -18,8 +18,9 @@ export class UserController {
 
     @UseGuards(EnsureIsAuthenticatedGuard)
     @Get('/me')
-    getInfo(@Req() req: Request) {
-        return { user: req.user };
+    async getInfo(@Req() req: Request) {
+        const user = await this.userService.findUserById(req.user.id!);
+        return { user };
     }
 
     @Get('/public/:username')

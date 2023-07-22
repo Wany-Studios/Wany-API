@@ -6,8 +6,10 @@ import {
     Req,
     Get,
     NotFoundException,
-    Param,
     BadRequestException,
+    Query,
+    Put,
+    UnauthorizedException,
 } from '@nestjs/common';
 import { CreateUserDto } from '../../dtos/create-user.dto';
 import { validateOrReject } from 'class-validator';
@@ -20,13 +22,20 @@ import { EmailService } from '../email/email.service';
 import { EmailConfirmation } from '../../entities/email-confirmation.entity';
 import { EmailConfirmationService } from '../email/email-confirmation/email-confirmation.service';
 import { Request } from 'express';
+import { AuthService } from './auth.service';
+import { TokenService } from '../../services/token.service';
+import { ResetPasswordDto } from '../../dtos/reset-password.dto';
+import { HashService } from '../../services/hash.service';
 
 @Controller('auth')
 export class AuthController {
     constructor(
+        private readonly authService: AuthService,
         private readonly userService: UserService,
         private readonly emailService: EmailService,
+        private readonly hashService: HashService,
         private readonly emailConfirmationService: EmailConfirmationService,
+        private readonly tokenService: TokenService,
     ) {}
 
     @Post('/signup')
@@ -52,14 +61,17 @@ export class AuthController {
         if (isError(user)) {
             if (is(user, NotFoundException)) {
                 throw new CriticalException(
-                    'A critical error has occurred. His account seems to have been created, but apparently something went wrong. Please report this to the Wany team.',
+                    'A critical error has occurred. Your account seems to have been created, but apparently something went wrong. Please report this to the Wany team.',
                 );
             }
 
             throw user;
         }
 
-        // generate email confirmation token, save in database and then send in the user email
+        /*
+         * generate email confirmation token,
+         * save in database and then send in the user email
+         */
         const emailConfirmation: EmailConfirmation = {
             id: randomUUID(),
             email: user.email!,
@@ -86,12 +98,12 @@ export class AuthController {
     }
 
     @UseGuards(EnsureIsAuthenticatedGuard)
-    @Post('/email/verification/:token')
+    @Post('/email/verification')
     async verifyEmailConfirmationToken(
         @Req() req: Request,
-        @Param('token') token: string,
+        @Query('token') token: string,
     ) {
-        const user: User = req.user!;
+        const user: User = req.user;
         const emailConfirmation =
             await this.emailConfirmationService.findEmailConfirmationWithToken(
                 token,
@@ -116,6 +128,67 @@ export class AuthController {
 
         return {
             message: 'Email verified successfully',
+        };
+    }
+
+    @Post('/forgot-password')
+    async forgotPassword(@Body('email') email: string) {
+        const user = await this.userService.findUserByEmail(email);
+
+        if (isError(user)) throw user;
+
+        const token = this.tokenService.generateResetPasswordToken();
+        const result = await this.authService.createResetPasswordToken({
+            user_id: user.id,
+            token,
+            used: false,
+        });
+
+        if (isError(result)) throw result;
+
+        throwIfIsError(
+            await this.emailService.sendResetPasswordTokenEmail(user, token),
+        );
+
+        return {
+            message: 'An email has been sent to your email address',
+        };
+    }
+
+    @Put('/reset-password')
+    async resetPassword(
+        @Req() req: Request,
+        @Body() payload: ResetPasswordDto,
+    ) {
+        await validateOrReject(payload);
+
+        const resetPassword = await this.authService.findResetPasswordByToken(
+            payload.token,
+        );
+
+        if (isError(resetPassword)) throw resetPassword;
+
+        const user = await this.userService.findUserById(resetPassword.user_id);
+        if (isError(user)) throw user;
+
+        if (user.email !== payload.email) {
+            throw new BadRequestException('Wrong email address');
+        }
+
+        if (resetPassword.used || resetPassword.is_expired) {
+            throw new UnauthorizedException('This token is expired');
+        }
+
+        throwIfIsError(
+            await this.authService.markResetPasswordAsUsed(resetPassword.id),
+        );
+
+        await this.userService.update(user.id, {
+            password: await this.hashService.hashPassword(payload.newPassword),
+        });
+
+        return {
+            message: 'Your password has been changed',
         };
     }
 
