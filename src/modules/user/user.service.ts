@@ -70,6 +70,14 @@ export class UserService {
         return await this.userRepository.find();
     }
 
+    async getUserAvatarByUsername(
+        username: string,
+    ): Promise<string | undefined | NotFoundException> {
+        const user = await this.userRepository.findOneBy({ username });
+        if (!user) return new NotFoundException('User not found');
+        return user.avatar;
+    }
+
     async findUserById(
         id: string,
     ): Promise<

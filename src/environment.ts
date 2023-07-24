@@ -51,8 +51,8 @@ export default {
         service: 'gmail',
     },
     upload: {
-        gamesPath: 'uploads/games/',
-        avatarPath: 'uploads/avatars/',
+        gamesPath: process.cwd() + '\\uploads\\games\\',
+        avatarPath: process.cwd() + '\\uploads\\avatars\\',
     },
     isDevelopment,
 };
