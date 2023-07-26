@@ -3,10 +3,11 @@
 	"tasks": [
 		{
 			"type": "npm",
-			"script": "start:dev",
+			"script": "build",
+			"group": "build",
 			"problemMatcher": [],
-			"label": "npm: start:dev",
-			"detail": "nest start --watch"
+			"label": "npm: build",
+			"detail": "nest build"
 		}
 	]
 }
