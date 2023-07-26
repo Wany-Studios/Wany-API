@@ -52,9 +52,6 @@ export class User {
     @Column({ default: 'default.png' })
     avatar?: string;
 
-    @Column({ default: false })
-    verified?: boolean;
-
     @Column({
         type: 'enum',
         enum: Role,
