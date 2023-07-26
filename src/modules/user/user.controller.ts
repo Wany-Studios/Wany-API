@@ -23,7 +23,6 @@ import {
     UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import path = require('path');
 
 @Controller('user')
 export class UserController {
@@ -46,7 +45,6 @@ export class UserController {
             avatar: user.avatar,
             role: user.role,
             birth_date: user.birth_date,
-            verified: user.verified,
             updated_at: user.updated_at,
             created_at: user.created_at,
             avatar_url:

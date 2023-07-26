@@ -51,7 +51,6 @@ export class AuthController {
             password,
             birth_date: dateOfBirth,
             role: Role.User,
-            verified: false,
         });
 
         if (isError(result)) throw result;
@@ -132,9 +131,11 @@ export class AuthController {
             ),
         );
 
+        const newUserSituationWithoutNotVerified =
+            user.situation! ^ UserSituation.NotVerified; // removing not verified
+
         this.userService.update(user.id, {
-            verified: true,
-            situation: user.situation! ^ UserSituation.NotVerified, // removing not verified
+            situation: newUserSituationWithoutNotVerified,
         });
 
         return {
