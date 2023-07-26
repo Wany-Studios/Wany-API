@@ -134,9 +134,13 @@ export class AuthController {
         const newUserSituationWithoutNotVerified =
             user.situation! ^ UserSituation.NotVerified; // removing not verified
 
-        this.userService.update(user.id, {
-            situation: newUserSituationWithoutNotVerified,
-        });
+        throwIfIsError(
+            this.userService.update(user.id, {
+                situation: newUserSituationWithoutNotVerified,
+            }),
+        );
+
+        req.user.situation = newUserSituationWithoutNotVerified;
 
         return {
             message: 'Email verified successfully',
