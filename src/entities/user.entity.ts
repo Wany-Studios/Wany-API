@@ -8,9 +8,18 @@ import {
     Repository,
 } from 'typeorm';
 
+export enum UserSituation {
+    Banned = 1 << 1,
+    UnableToComment = 2 << 1,
+    UnableToCreateGame = 3 << 1,
+    UnableToReadComments = 4 << 1,
+    UnableToPlayGames = 5 << 1,
+    NotVerified = 6 << 1,
+}
+
 export enum Role {
-    User = 'user',
-    Admin = 'admin',
+    User = 'User',
+    Admin = 'Admin',
 }
 
 @Entity()
@@ -52,6 +61,13 @@ export class User {
         default: Role.User,
     })
     role?: Role;
+
+    @Column({
+        type: 'enum',
+        enum: UserSituation,
+        default: UserSituation.NotVerified,
+    })
+    situation?: UserSituation;
 
     @CreateDateColumn()
     created_at?: Date;

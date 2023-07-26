@@ -16,7 +16,7 @@ import { validateOrReject } from 'class-validator';
 import { EnsureIsAuthenticatedGuard, LocalAuthGuard } from './auth.guard';
 import { UserService } from '../user/user.service';
 import { CriticalException, is, isError, throwIfIsError } from '../../utils';
-import { Role, User } from '../../entities/user.entity';
+import { Role, UserSituation } from '../../entities/user.entity';
 import { randomUUID } from 'crypto';
 import { EmailService } from '../email/email.service';
 import { EmailConfirmation } from '../../entities/email-confirmation.entity';
@@ -103,7 +103,15 @@ export class AuthController {
         @Req() req: Request,
         @Query('token') token: string,
     ) {
-        const user: User = req.user;
+        const user = await this.userService.findUserById(req.user!.id);
+        if (isError(user)) throw user;
+
+        if ((user.situation! & UserSituation.NotVerified) === 0) {
+            return {
+                message: 'Your account is already verified',
+            };
+        }
+
         const emailConfirmation =
             await this.emailConfirmationService.findEmailConfirmationWithToken(
                 token,
@@ -124,7 +132,10 @@ export class AuthController {
             ),
         );
 
-        this.userService.update(user.id, { verified: true });
+        this.userService.update(user.id, {
+            verified: true,
+            situation: user.situation! ^ UserSituation.NotVerified, // removing not verified
+        });
 
         return {
             message: 'Email verified successfully',
