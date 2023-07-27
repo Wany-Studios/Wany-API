@@ -30,7 +30,7 @@ export class UserController {
 
     @UseGuards(EnsureIsAuthenticatedGuard)
     @Get('/me')
-    async getInfo(@Req() req: Request) {
+    async getMe(@Req() req: Request) {
         const user = await this.userService.findUserById(req.user.id!);
 
         if (isError(user)) {

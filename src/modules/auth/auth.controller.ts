@@ -172,10 +172,7 @@ export class AuthController {
     }
 
     @Put('/reset-password')
-    async resetPassword(
-        @Req() req: Request,
-        @Body() payload: ResetPasswordDto,
-    ) {
+    async resetPassword(@Body() payload: ResetPasswordDto) {
         await validateOrReject(payload);
 
         const resetPassword = await this.authService.findResetPasswordByToken(

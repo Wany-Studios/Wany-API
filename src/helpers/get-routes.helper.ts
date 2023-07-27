@@ -5,14 +5,15 @@ export function getRoutes(req: Request) {
     const baseUrl = getBaseUrl(req);
 
     return {
+        avatar_url: baseUrl + '/public/{username}/avatar',
+        current_user_url: baseUrl + '/user/me',
+        forgot_password_url: baseUrl + '/auth/forgot-password',
         login_url: baseUrl + '/auth/signin',
-        signup_url: baseUrl + '/auth/signup',
         logout_url: baseUrl + '/auth/logout',
         reset_password_url: baseUrl + '/auth/reset-password',
-        forgot_password_url: baseUrl + '/auth/forgot-password',
-        verify_email_url: baseUrl + '/auth/email/verification',
-        current_user_url: baseUrl + '/user/me',
+        signup_url: baseUrl + '/auth/signup',
         user_url: baseUrl + '/user/public/{username}',
-        upload_avatar: baseUrl + 'user/upload-avatar',
+        upload_avatar_url: baseUrl + '/user/upload-avatar',
+        verify_email_url: baseUrl + '/auth/email/verification?token={token}',
     };
 }
