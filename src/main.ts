@@ -1,10 +1,12 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './modules/app/app.module';
 import { ValidationPipe } from '@nestjs/common';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import environment from './environment';
 import cookieParser = require('cookie-parser');
 import session = require('express-session');
 import passport = require('passport');
+import helmet from 'helmet';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
@@ -29,6 +31,7 @@ async function bootstrap() {
             },
         }),
     );
+    app.use(helmet());
     app.use(passport.initialize());
     app.use(passport.session());
 
@@ -37,6 +40,16 @@ async function bootstrap() {
         const killPort = require('kill-port');
         await killPort(environment.server.port).catch(console.log);
     }
+
+    const config = new DocumentBuilder()
+        .setTitle('Wany API')
+        .setDescription('The wany.com.br website API')
+        .setVersion('1.0')
+        .addTag('auth', 'authentication and verification endpoints')
+        .addTag('user', 'user endpoints')
+        .build();
+
+    SwaggerModule.setup('docs', app, SwaggerModule.createDocument(app, config));
 
     await app.listen(environment.server.port, environment.server.host, () => {
         console.log(`Server has started on port ${environment.server.port}.`);

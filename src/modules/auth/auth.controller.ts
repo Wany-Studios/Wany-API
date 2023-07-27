@@ -1,5 +1,4 @@
 import {
-    Body,
     Controller,
     Post,
     UseGuards,
@@ -10,6 +9,7 @@ import {
     Query,
     Put,
     UnauthorizedException,
+    Body,
 } from '@nestjs/common';
 import { CreateUserDto } from '../../dtos/create-user.dto';
 import { validateOrReject } from 'class-validator';
@@ -26,7 +26,11 @@ import { AuthService } from './auth.service';
 import { TokenService } from '../../services/token.service';
 import { ResetPasswordDto } from '../../dtos/reset-password.dto';
 import { HashService } from '../../services/hash.service';
+import { ApiTags, ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
+import { AuthenticateDto } from '../../dtos/authenticate.dto';
+import { ForgotPasswordDto } from '../../dtos/forgot-password.dto';
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
     constructor(
@@ -38,8 +42,11 @@ export class AuthController {
         private readonly tokenService: TokenService,
     ) {}
 
+    @ApiCreatedResponse({
+        description: 'The account is created. Returns a success message.',
+    })
     @Post('/signup')
-    async register(@Body() data: CreateUserDto): Promise<any> {
+    async register(@Body() data: CreateUserDto): Promise<{ message: string }> {
         await validateOrReject(data);
 
         const { dateOfBirth, email, password, username } = data;
@@ -60,7 +67,7 @@ export class AuthController {
         if (isError(user)) {
             if (is(user, NotFoundException)) {
                 throw new CriticalException(
-                    'A critical error has occurred. Your account seems to have been created, but apparently something went wrong. Please report this to the Wany team.',
+                    'A critical error has occurred. Your account seems to be created, but apparently something went wrong. Please report this to the Wany team.',
                 );
             }
 
@@ -92,16 +99,19 @@ export class AuthController {
         );
 
         return {
-            message: 'Your account has been created successfully',
+            message: 'Your account was created successfully',
         };
     }
 
+    @ApiOkResponse({
+        description: 'Account sucessfully verified. Returns a success message.',
+    })
     @UseGuards(EnsureIsAuthenticatedGuard)
     @Post('/email/verification')
     async verifyEmailConfirmationToken(
         @Req() req: Request,
         @Query('token') token: string,
-    ) {
+    ): Promise<{ message: string }> {
         const user = await this.userService.findUserById(req.user!.id);
         if (isError(user)) throw user;
 
@@ -147,8 +157,14 @@ export class AuthController {
         };
     }
 
+    @ApiOkResponse({
+        description:
+            'An token is sent to user email. Returns an information message.',
+    })
     @Post('/forgot-password')
-    async forgotPassword(@Body('email') email: string) {
+    async forgotPassword(
+        @Body() { email }: ForgotPasswordDto,
+    ): Promise<{ message: string }> {
         const user = await this.userService.findUserByEmail(email);
 
         if (isError(user)) throw user;
@@ -167,12 +183,18 @@ export class AuthController {
         );
 
         return {
-            message: 'An email has been sent to your email address',
+            message: 'An email was sent to your email address. Please, verify.',
         };
     }
 
+    @ApiOkResponse({
+        description:
+            'The user password was recovered. Returns a success message.',
+    })
     @Put('/reset-password')
-    async resetPassword(@Body() payload: ResetPasswordDto) {
+    async resetPassword(
+        @Body() payload: ResetPasswordDto,
+    ): Promise<{ message: string }> {
         await validateOrReject(payload);
 
         const resetPassword = await this.authService.findResetPasswordByToken(
@@ -201,19 +223,22 @@ export class AuthController {
         });
 
         return {
-            message: 'Your password has been changed',
+            message: 'Your password changed successfully',
         };
     }
 
     @UseGuards(LocalAuthGuard)
     @Post('/signin')
-    async login(): Promise<any> {
+    async login(@Body() {}: AuthenticateDto): Promise<{ message: string }> {
         return { message: 'You are logged' };
     }
 
     @Get('/logout')
-    logout(@Req() req: any): any {
+    async logout(@Req() req: any): Promise<{ message: string }> {
         req.session.destroy();
-        return { message: 'The user session has ended' };
+
+        return {
+            message: 'Session ended',
+        };
     }
 }

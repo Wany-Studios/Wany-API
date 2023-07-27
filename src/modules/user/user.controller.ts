@@ -23,20 +23,30 @@ import {
     UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiConsumes, ApiTags, ApiBody, ApiOkResponse } from '@nestjs/swagger';
+import { User } from '../../entities/user.entity';
 
+@ApiTags('user')
 @Controller('user')
 export class UserController {
     constructor(private readonly userService: UserService) {}
 
+    @ApiOkResponse({
+        description: 'Returns the authenticated user data.',
+    })
     @UseGuards(EnsureIsAuthenticatedGuard)
     @Get('/me')
-    async getMe(@Req() req: Request) {
+    async getMe(
+        @Req() req: Request,
+    ): Promise<Partial<User> & { avatar_url: string }> {
         const user = await this.userService.findUserById(req.user.id!);
 
         if (isError(user)) {
             handleIsInternalServerError(user);
             throw user;
         }
+
+        const urls = getBaseUrl(req);
 
         return {
             id: user.id,
@@ -47,18 +57,32 @@ export class UserController {
             birth_date: user.birth_date,
             updated_at: user.updated_at,
             created_at: user.created_at,
-            avatar_url:
-                getBaseUrl(req) + `/user/public/${user.username}/avatar`,
+            avatar_url: urls + `/user/public/${user.username}/avatar`,
         };
     }
 
+    @ApiOkResponse({
+        description: 'Change logged user avatar. Returns a success message.',
+    })
+    @ApiBody({
+        schema: {
+            type: 'object',
+            properties: {
+                file: {
+                    type: 'image',
+                    format: 'binary',
+                },
+            },
+        },
+    })
     @UseGuards(EnsureIsAuthenticatedGuard)
     @Post('/upload-avatar')
     @UseInterceptors(FileInterceptor('file'))
+    @ApiConsumes('multipart/form-data')
     async changeAvatar(
         @Req() req: Request,
         @UploadedFile() file: Express.Multer.File,
-    ) {
+    ): Promise<{ message: string }> {
         const { user } = req;
         const { filename } = file;
 
@@ -69,9 +93,12 @@ export class UserController {
         deleteFile(environment.upload.avatarPath + userAvatar);
         await this.userService.update(user.id, { avatar: filename });
 
-        return { message: 'Avatar image has been sucessfully saved', filename };
+        return { message: 'Avatar image has been sucessfully saved' };
     }
 
+    @ApiOkResponse({
+        description: 'Returns the user avatar image.',
+    })
     @Get('/public/:username/avatar')
     async getAvatar(@Res() res: Response, @Param('username') username: string) {
         const userAvatar = await this.userService.getUserAvatarByUsername(
@@ -90,6 +117,9 @@ export class UserController {
         res.sendFile(path);
     }
 
+    @ApiOkResponse({
+        description: 'Returns user data with username.',
+    })
     @Get('/public/:username')
     async byUsername(@Req() req: Request, @Param('username') username: string) {
         if (!username || !username.trim()) {
@@ -103,12 +133,13 @@ export class UserController {
             throw user;
         }
 
+        const urls = getBaseUrl(req);
+
         return {
             id: user.id,
             username: user.username,
             email: user.email,
-            avatar_url:
-                getBaseUrl(req) + `/user/public/${user.username}/avatar`,
+            avatar_url: urls + `/user/public/${user.username}/avatar`,
             role: user.role,
         };
     }
