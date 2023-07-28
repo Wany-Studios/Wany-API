@@ -24,11 +24,7 @@
 
 # Wany-Project
 
-The wany project is basically a platform for streaming and downloading games.
-
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+The wany project is a platform for streaming and downloading games.
 
 ## Installation
 
