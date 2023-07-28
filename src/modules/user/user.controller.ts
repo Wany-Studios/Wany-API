@@ -90,7 +90,7 @@ export class UserController {
             user.username!,
         );
 
-        deleteFile(environment.upload.avatarPath + userAvatar);
+        await deleteFile(environment.upload.avatarPath + userAvatar);
         await this.userService.update(user.id, { avatar: filename });
 
         return { message: 'Avatar image has been sucessfully saved' };

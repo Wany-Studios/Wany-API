@@ -53,10 +53,30 @@ export function checkFileExists(filepath: string) {
     });
 }
 
-export function deleteFile(filePath: string) {
-    return new Promise((resolve, reject) => {
+export function deleteFile(filePath: string): Promise<null | Error> {
+    return new Promise((res) => {
         fs.unlink(filePath, (err) => {
-            err ? reject(err) : resolve(null);
+            err ? res(err) : res(null);
         });
+    });
+}
+
+export function folderExists(folderPath: string) {
+    try {
+        fs.accessSync(folderPath, fs.constants.F_OK);
+        return true;
+    } catch (err) {
+        return false;
+    }
+}
+
+export function createFolder(folderPath: string): Promise<null | Error> {
+    return new Promise((res) => {
+        try {
+            fs.mkdirSync(folderPath);
+            res(null);
+        } catch (err) {
+            res(err);
+        }
     });
 }
