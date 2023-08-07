@@ -14,7 +14,6 @@ export default Object.freeze({
         host: '0.0.0.0',
         port: 3000,
         secure: process.env.HTTPS === 'true',
-        //entities: [__dirname + '\\**\\*.entity{.ts,.js}'],
         entities: [__dirname + '/**/*.entity.js'],
     },
     database: {
