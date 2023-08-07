@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 
 export enum UserSituation {
+    None = 0,
     Banned = 1 << 1,
     UnableToComment = 2 << 1,
     UnableToCreateGame = 3 << 1,

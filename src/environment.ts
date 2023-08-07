@@ -6,7 +6,6 @@ const isDevelopment =
 if (isDevelopment) {
     config();
 }
-
 export default Object.freeze({
     secret: process.env.SECRET as string,
     secure: process.env.SECURE === 'true',

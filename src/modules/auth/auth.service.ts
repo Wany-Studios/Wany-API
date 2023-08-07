@@ -10,7 +10,6 @@ import { Role, User } from '../../entities/user.entity';
 import { UserService } from '../user/user.service';
 import { HashService } from '../../services/hash.service';
 import { isError } from '../../utils';
-import { TokenService } from '../../services/token.service';
 import {
     ResetPassword,
     ResetPasswordRepository,
