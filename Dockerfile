@@ -17,9 +17,7 @@ WORKDIR /usr/src/app
 COPY . ./
 COPY --from=builder /usr/src/app/dist ./dist
 
-ENV NODE_ENV=production
-
-RUN npm install --production
+RUN npm i --production
 RUN npm i -g pm2 @nestjs/cli
 
 EXPOSE 3000
