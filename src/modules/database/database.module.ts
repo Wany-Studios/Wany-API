@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../../entities/user.entity';
-import { DataSourceOptions } from 'typeorm';
+import { DataSource, DataSourceOptions } from 'typeorm';
 import { EmailConfirmation } from '../../entities/email-confirmation.entity';
 import environment from '../../environment';
 import { ResetPassword } from '../../entities/reset-password.entity';
@@ -15,6 +15,11 @@ const config: DataSourceOptions = {
     database: environment.database.name,
     entities: environment.server.entities,
     synchronize: environment.isDevelopment,
+};
+
+const dataSourceProvider = {
+    provide: DataSource,
+    useValue: config,
 };
 
 @Module({

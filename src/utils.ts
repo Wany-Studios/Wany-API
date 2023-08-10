@@ -27,10 +27,13 @@ export function handleIsInternalServerError(value: Error) {
     );
 }
 
-export function throwIfIsError(value: any) {
-    if (!isError(value)) return;
-    handleIsInternalServerError(value);
-    throw value;
+export function throwErrorOrContinue<T>(
+    value: T | Error,
+): asserts value is Exclude<T, Error> {
+    if (isError(value)) {
+        handleIsInternalServerError(value);
+        throw value;
+    }
 }
 
 export class CriticalException extends HttpException {

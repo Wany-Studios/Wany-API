@@ -3,7 +3,7 @@ import { Request } from 'express';
 import { getRoutes } from '../../helpers/get-routes.helper';
 import { Roles } from '../../helpers/auth/roles.decorator';
 import { Role } from '../../entities/user.entity';
-import { EnsureIsAuthenticatedGuard, RolesGuard } from '../auth/auth.guard';
+import { EnsureAuthGuard, RolesGuard } from '../auth/auth.guard';
 
 @Controller()
 export class AppController {
@@ -13,7 +13,7 @@ export class AppController {
     }
 
     @Roles(Role.Admin)
-    @UseGuards(EnsureIsAuthenticatedGuard, RolesGuard)
+    @UseGuards(EnsureAuthGuard, RolesGuard)
     @Get('/admin')
     admin() {
         return 200;

@@ -86,7 +86,7 @@ describe('AuthService', () => {
             const u = generateUserData();
             expect(await userService.create(u)).not.toBe(Error);
             expect(
-                await authService.validateUserByCredentials(
+                await authService.validateUserCredentials(
                     u.username!,
                     u.password!,
                 ),
@@ -97,7 +97,7 @@ describe('AuthService', () => {
             const u = generateUserData();
             expect(await userService.create(u)).not.toBe(Error);
             expect(
-                await authService.validateUserByCredentials(
+                await authService.validateUserCredentials(
                     u.email!,
                     u.password!,
                 ),

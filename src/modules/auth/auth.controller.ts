@@ -10,18 +10,24 @@ import {
     Put,
     UnauthorizedException,
     Body,
+    Res,
 } from '@nestjs/common';
 import { CreateUserDto } from '../../dtos/create-user.dto';
 import { validateOrReject } from 'class-validator';
-import { EnsureIsAuthenticatedGuard, LocalAuthGuard } from './auth.guard';
+import { EnsureAuthGuard } from './auth.guard';
 import { UserService } from '../user/user.service';
-import { CriticalException, is, isError, throwIfIsError } from '../../utils';
+import {
+    CriticalException,
+    is,
+    isError,
+    throwErrorOrContinue,
+} from '../../utils';
 import { Role, UserSituation } from '../../entities/user.entity';
 import { randomUUID } from 'crypto';
 import { EmailService } from '../email/email.service';
 import { EmailConfirmation } from '../../entities/email-confirmation.entity';
 import { EmailConfirmationService } from '../email/email-confirmation/email-confirmation.service';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { TokenService } from '../../services/token.service';
 import { ResetPasswordDto } from '../../dtos/reset-password.dto';
@@ -86,12 +92,12 @@ export class AuthController {
             user_id: user.id!,
         };
 
-        throwIfIsError(
+        throwErrorOrContinue(
             await this.emailConfirmationService.createEmailConfirmation(
                 emailConfirmation,
             ),
         );
-        throwIfIsError(
+        throwErrorOrContinue(
             await this.emailService.sendConfirmationEmail(
                 user,
                 emailConfirmation,
@@ -106,7 +112,7 @@ export class AuthController {
     @ApiOkResponse({
         description: 'Account sucessfully verified. Returns a success message.',
     })
-    @UseGuards(EnsureIsAuthenticatedGuard)
+    @UseGuards(EnsureAuthGuard)
     @Post('/email/verification')
     async verifyEmailConfirmationToken(
         @Req() req: Request,
@@ -135,7 +141,7 @@ export class AuthController {
             throw new BadRequestException('This token is already used');
         }
 
-        throwIfIsError(
+        throwErrorOrContinue(
             await this.emailConfirmationService.markEmailConfirmationTokenAsUsed(
                 emailConfirmation.id,
             ),
@@ -144,7 +150,7 @@ export class AuthController {
         const newUserSituationWithoutNotVerified =
             user.situation! ^ UserSituation.NotVerified; // removing not verified
 
-        throwIfIsError(
+        throwErrorOrContinue(
             this.userService.update(user.id, {
                 situation: newUserSituationWithoutNotVerified,
             }),
@@ -178,7 +184,7 @@ export class AuthController {
 
         if (isError(result)) throw result;
 
-        throwIfIsError(
+        throwErrorOrContinue(
             await this.emailService.sendResetPasswordTokenEmail(user, token),
         );
 
@@ -214,7 +220,7 @@ export class AuthController {
             throw new UnauthorizedException('This token is expired');
         }
 
-        throwIfIsError(
+        throwErrorOrContinue(
             await this.authService.markResetPasswordAsUsed(resetPassword.id),
         );
 
@@ -227,18 +233,26 @@ export class AuthController {
         };
     }
 
-    @UseGuards(LocalAuthGuard)
     @Post('/signin')
-    async login(@Body() {}: AuthenticateDto): Promise<{ message: string }> {
+    async login(
+        @Body() { usernameOrEmail, password }: AuthenticateDto,
+        @Res({ passthrough: true }) res: Response,
+    ): Promise<{ message: string }> {
+        const user = await this.authService.validateUserCredentials(
+            usernameOrEmail,
+            password,
+        );
+
+        throwErrorOrContinue(user);
+        await this.authService.signIn(user, res);
         return { message: 'You are logged' };
     }
 
     @Get('/logout')
-    async logout(@Req() req: any): Promise<{ message: string }> {
-        req.session.destroy();
-
-        return {
-            message: 'Session ended',
-        };
+    async logout(
+        @Res({ passthrough: true }) res: any,
+    ): Promise<{ message: string }> {
+        res.clearCookie('token');
+        return { message: 'Session ended' };
     }
 }

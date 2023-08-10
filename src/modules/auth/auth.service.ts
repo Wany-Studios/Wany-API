@@ -1,11 +1,9 @@
-import { Strategy as LocalStrategy } from 'passport-local';
 import {
     BadRequestException,
     Injectable,
     InternalServerErrorException,
     NotFoundException,
 } from '@nestjs/common';
-import { PassportSerializer, PassportStrategy } from '@nestjs/passport';
 import { Role, User } from '../../entities/user.entity';
 import { UserService } from '../user/user.service';
 import { HashService } from '../../services/hash.service';
@@ -17,6 +15,9 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { InsertResult } from 'typeorm';
 import { randomUUID } from 'crypto';
+import { JwtService } from '@nestjs/jwt';
+import { Response } from 'express';
+import environment from 'src/environment';
 
 export interface JwtData {
     sub: string;
@@ -34,9 +35,10 @@ export class AuthService {
         private readonly hashService: HashService,
         @InjectRepository(ResetPassword)
         private readonly resetPasswordRepository: ResetPasswordRepository,
+        private jwtService: JwtService,
     ) {}
 
-    async validateUserByCredentials(usernameOrEmail: string, password: string) {
+    async validateUserCredentials(usernameOrEmail: string, password: string) {
         const user = await this.userService.findUserByUsernameOrEmail(
             usernameOrEmail,
         );
@@ -50,6 +52,25 @@ export class AuthService {
             return new BadRequestException('Password is incorrect');
 
         return user;
+    }
+
+    async signIn(user: User, res: Response) {
+        const payload = {
+            sub: user.id,
+            email: user.email!,
+            role: user.role!,
+            username: user.username!,
+            isVerified: false,
+        };
+
+        const token = await this.jwtService.signAsync(payload, {
+            secret: environment.secret,
+        });
+
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: environment.secure,
+        });
     }
 
     async findResetPasswordByToken(
@@ -113,40 +134,5 @@ export class AuthService {
         } catch (err) {
             return new InternalServerErrorException(err.message);
         }
-    }
-}
-
-@Injectable()
-export class LocalStrategyService extends PassportStrategy(LocalStrategy) {
-    constructor(private readonly authService: AuthService) {
-        super({ usernameField: 'usernameOrEmail' });
-    }
-
-    async validate(
-        usernameOrEmail: string,
-        password: string,
-    ): Promise<User | null> {
-        const user = await this.authService.validateUserByCredentials(
-            usernameOrEmail,
-            password,
-        );
-        if (isError(user)) throw user;
-        return user;
-    }
-}
-
-@Injectable()
-export class SessionSerializerService extends PassportSerializer {
-    serializeUser(
-        user: any,
-        done: (err: Error | null, user: any) => void,
-    ): any {
-        done(null, user);
-    }
-    deserializeUser(
-        payload: any,
-        done: (err: Error | null, payload: string) => void,
-    ): any {
-        done(null, payload);
     }
 }

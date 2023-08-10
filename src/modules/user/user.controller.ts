@@ -5,7 +5,7 @@ import {
     handleIsInternalServerError,
     isError,
 } from '../../utils';
-import { EnsureIsAuthenticatedGuard } from '../auth/auth.guard';
+import { EnsureAuthGuard } from '../auth/auth.guard';
 import { Request, Response } from 'express';
 import { getBaseUrl } from '../../helpers/get-base-url.helper';
 import environment from '../../environment';
@@ -34,7 +34,7 @@ export class UserController {
     @ApiOkResponse({
         description: 'Returns the authenticated user data.',
     })
-    @UseGuards(EnsureIsAuthenticatedGuard)
+    @UseGuards(EnsureAuthGuard)
     @Get('/me')
     async getMe(
         @Req() req: Request,
@@ -75,7 +75,7 @@ export class UserController {
             },
         },
     })
-    @UseGuards(EnsureIsAuthenticatedGuard)
+    @UseGuards(EnsureAuthGuard)
     @Post('/upload-avatar')
     @UseInterceptors(FileInterceptor('file'))
     @ApiConsumes('multipart/form-data')

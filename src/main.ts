@@ -5,7 +5,6 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import environment from './environment';
 import cookieParser = require('cookie-parser');
 import session = require('express-session');
-import passport = require('passport');
 import helmet from 'helmet';
 
 async function bootstrap() {
@@ -22,7 +21,7 @@ async function bootstrap() {
             secret: environment.secret,
             resave: false,
             saveUninitialized: false,
-            name: 'wany-delt4d',
+            name: 'wany',
             cookie: {
                 sameSite: 'strict',
                 secure: environment.secure,
@@ -32,8 +31,6 @@ async function bootstrap() {
         }),
     );
     app.use(helmet());
-    app.use(passport.initialize());
-    app.use(passport.session());
 
     if (environment.isDevelopment) {
         // eslint-disable-next-line @typescript-eslint/no-var-requires
