@@ -210,7 +210,7 @@ export class AuthController {
         if (isError(resetPassword)) throw resetPassword;
 
         const user = await this.userService.findUserById(resetPassword.user_id);
-        if (isError(user)) throw user;
+        throwErrorOrContinue(user);
 
         if (user.email !== payload.email) {
             throw new BadRequestException('Wrong email address');

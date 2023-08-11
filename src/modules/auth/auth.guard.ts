@@ -10,9 +10,9 @@ import { Request } from 'express';
 import { Role, User } from '../../entities/user.entity';
 import { DataSource } from 'typeorm';
 import { JwtData } from './auth.service';
-import { throwErrorOrContinue } from 'src/utils';
 import * as jwt from 'jsonwebtoken';
-import environment from 'src/environment';
+import environment from '../../environment';
+import { throwErrorOrContinue } from '../../utils';
 
 @Injectable()
 export class EnsureAuthGuard implements CanActivate {
@@ -35,6 +35,8 @@ export class EnsureAuthGuard implements CanActivate {
 
             return true;
         } catch (error) {
+            if (error.name === 'TokenExpiredError')
+                throw new UnauthorizedException('Token is expired.');
             throw new UnauthorizedException('You must be logged.');
         }
     }

@@ -1,18 +1,34 @@
+import { MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
-import { UserService } from './user.service';
+import {
+    createUserFactory,
+    getMongooseFeatures,
+    mongoTestingModule,
+} from '../../utils.testing';
+import { UserService } from '../../modules/user/user.service';
+import { Repository } from 'typeorm';
+import { User } from '../../entities/user.entity';
+import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
+import { HashService } from '../../services/hash.service';
 
 describe('UserService', () => {
-    let service: UserService;
+    let userService: UserService;
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
-            providers: [UserService],
+            imports: [mongoTestingModule(), getMongooseFeatures()],
+            providers: [UserService, HashService],
         }).compile();
 
-        service = module.get<UserService>(UserService);
+        userService = module.get<UserService>(UserService);
     });
 
     it('should be defined', () => {
-        expect(service).toBeDefined();
+        expect(userService).toBeDefined();
+    });
+
+    it('should create a user', async () => {
+        const user = createUserFactory();
+        const result = await userService.create(user);
     });
 });

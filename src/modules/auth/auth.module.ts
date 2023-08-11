@@ -7,7 +7,7 @@ import { HashService } from '../../services/hash.service';
 import { TokenService } from '../../services/token.service';
 import { DatabaseModule } from '../database/database.module';
 import { JwtModule, JwtService } from '@nestjs/jwt';
-import environment from 'src/environment';
+import environment from '../../environment';
 
 @Module({
     imports: [

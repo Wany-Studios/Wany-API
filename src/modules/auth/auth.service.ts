@@ -17,7 +17,7 @@ import { InsertResult } from 'typeorm';
 import { randomUUID } from 'crypto';
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
-import environment from 'src/environment';
+import environment from '../../environment';
 
 export interface JwtData {
     sub: string;
@@ -55,12 +55,13 @@ export class AuthService {
     }
 
     async signIn(user: User, res: Response) {
-        const payload = {
+        const payload: JwtData = {
             sub: user.id,
             email: user.email!,
             role: user.role!,
             username: user.username!,
             isVerified: false,
+            exp: Math.floor(Date.now() / 1000) + 24 * 60 * 60, // 24 hours
         };
 
         const token = await this.jwtService.signAsync(payload, {
