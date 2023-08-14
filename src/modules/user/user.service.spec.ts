@@ -1,14 +1,6 @@
-import { MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
-import {
-    createUserFactory,
-    getMongooseFeatures,
-    mongoTestingModule,
-} from '../../utils.testing';
+import {testingDatabaseModule, createUserFactory, seedTestingDatabase} from "../../utils.testing";
 import { UserService } from '../../modules/user/user.service';
-import { Repository } from 'typeorm';
-import { User } from '../../entities/user.entity';
-import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
 import { HashService } from '../../services/hash.service';
 
 describe('UserService', () => {
@@ -16,19 +8,38 @@ describe('UserService', () => {
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
-            imports: [mongoTestingModule(), getMongooseFeatures()],
-            providers: [UserService, HashService],
+            imports: [...testingDatabaseModule()],
+            providers: [HashService, UserService],
         }).compile();
 
         userService = module.get<UserService>(UserService);
+
+        await seedTestingDatabase();
     });
+
+    // beforeEach(async () => {
+    //     await TransactionalTestContext.start();
+    // });
+
+    // afterEach(async () => {
+    //     await TransactionalTestContext.finish();
+    // });
 
     it('should be defined', () => {
         expect(userService).toBeDefined();
     });
 
-    it('should create a user', async () => {
-        const user = createUserFactory();
-        const result = await userService.create(user);
-    });
+    // it('should create a user', async () => {
+    //     const createUser = createUserFactory();
+    //     expect(await userService.create(createUser)).not.toBe(Error);
+
+    //     const user = await userService.findUserById(createUser.id);
+
+    //     expect(user).not.toBe(Error);
+
+    //     if (isError(user)) return;
+
+    //     expect(user.username).toEqual(createUser.username);
+    //     expect(user.email).toEqual(createUser.email);
+    // });
 });

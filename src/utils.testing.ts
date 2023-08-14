@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker';
-import { MongooseModule, MongooseModuleOptions } from '@nestjs/mongoose';
+import {TypeOrmModule} from "@nestjs/typeorm";
+import {DataSource} from "typeorm";
 import { Role, User, UserSituation } from './entities/user.entity';
-import { MongoMemoryServer } from 'mongodb-memory-server';
 
 export const createUserFactory = (user?: Partial<User>): User => {
     const defaultUser: User = {
@@ -22,47 +22,30 @@ export const createUserFactory = (user?: Partial<User>): User => {
     return { ...defaultUser, ...user } as User;
 };
 
-const mongoInstanceManager = (() => {
-    let _mongo: null | MongoMemoryServer = null;
+export const testingDatabaseModule = () => {
+    return [
+        TypeOrmModule.forRoot({
+            type: 'better-sqlite3',
+            database: ':memory:',
+            dropSchema: true,
+            entities: [User],
+            synchronize: true
+        }),
+        TypeOrmModule.forFeature([User])
+    ]
+};
+
+export const seedTestingDatabase = async (dataSource: DataSource) => {
+    const userRepo = dataSource.getRepository(User);
+    const createdUsers = [];
+
+    for (let i = 0; i < 10; i++) {
+        const user = createUserFactory();
+        await userRepo.save(user);
+        createdUsers.push(user);
+    }
 
     return {
-        async connect() {
-            await this.disconnect();
-            _mongo = new MongoMemoryServer();
-        },
-        async disconnect() {
-            if (_mongo !== null) {
-                await _mongo.stop();
-            }
-        },
-        get instance(): Promise<MongoMemoryServer> {
-            return new Promise(async (resolve) => {
-                if (_mongo === null) await this.connect();
-                return resolve(_mongo!);
-            });
-        },
-    };
-})();
-
-export const mongoTestingModule = (options: MongooseModuleOptions = {}) =>
-    MongooseModule.forRootAsync({
-        async useFactory() {
-            return {
-                uri: (await mongoInstanceManager.instance).getUri(),
-                ...options,
-            };
-        },
-    });
-
-export const closeMongoConnection = async () => {
-    await mongoInstanceManager.disconnect();
-};
-
-export const getMongooseFeatures = () => {
-    return MongooseModule.forFeature([
-        {
-            name: 'User',
-            schema: User,
-        },
-    ]);
-};
+        createdUsers
+    }
+}
