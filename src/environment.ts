@@ -1,4 +1,5 @@
 import { config } from 'dotenv-flow';
+import * as path from 'path';
 
 const isDevelopment =
     (process.env.NODE_ENV || 'development') === 'production' ? false : true;
@@ -50,8 +51,8 @@ export default Object.freeze({
         service: 'gmail',
     },
     upload: {
-        gamesPath: process.cwd() + '\\uploads\\games\\',
-        avatarPath: process.cwd() + '\\uploads\\avatars\\',
+        gamesPath: path.join(__dirname, 'uploads', 'games'),
+        avatarPath: path.join(__dirname, 'uploads', 'avatars'),
     },
     isDevelopment,
 });
