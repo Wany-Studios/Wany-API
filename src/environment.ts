@@ -1,13 +1,14 @@
 import { config } from 'dotenv-flow';
 import * as path from 'path';
 
-const isDevelopment =
-    (process.env.NODE_ENV || 'development') === 'production' ? false : true;
+const isDevelopment = (process.env.NODE_ENV || 'development') === 'development';
+const isTesting = process.env.NODE_ENV === 'test';
 
 if (isDevelopment) {
     config();
 }
-export default Object.freeze({
+
+const environment = Object.freeze({
     secret: process.env.SECRET as string,
     secure: process.env.SECURE === 'true',
     log: true,
@@ -24,6 +25,10 @@ export default Object.freeze({
         name: process.env.DB_NAME as string,
         port: parseInt(process.env.DB_PORT as string),
         host: process.env.DB_HOST as string,
+        synchronize:
+            process.env.SYNC_DATABASE === 'true' || isDevelopment || isTesting
+                ? true
+                : false,
     },
     client: {
         url: process.env.CLIENT_URL as string,
@@ -55,4 +60,12 @@ export default Object.freeze({
         avatarPath: path.join(__dirname, 'uploads', 'avatars'),
     },
     isDevelopment,
+    isTesting,
 });
+
+if (isTesting) {
+    environment.database.type = 'sqlite';
+    environment.database.name = ':memory:';
+}
+
+export default environment;
