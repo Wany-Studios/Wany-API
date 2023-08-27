@@ -1,6 +1,5 @@
 import { faker } from '@faker-js/faker';
-import {TypeOrmModule} from "@nestjs/typeorm";
-import {DataSource} from "typeorm";
+import { DataSource } from 'typeorm';
 import { Role, User, UserSituation } from './entities/user.entity';
 
 export const createUserFactory = (user?: Partial<User>): User => {
@@ -22,19 +21,6 @@ export const createUserFactory = (user?: Partial<User>): User => {
     return { ...defaultUser, ...user } as User;
 };
 
-export const testingDatabaseModule = () => {
-    return [
-        TypeOrmModule.forRoot({
-            type: 'better-sqlite3',
-            database: ':memory:',
-            dropSchema: true,
-            entities: [User],
-            synchronize: true
-        }),
-        TypeOrmModule.forFeature([User])
-    ]
-};
-
 export const seedTestingDatabase = async (dataSource: DataSource) => {
     const userRepo = dataSource.getRepository(User);
     const createdUsers = [];
@@ -46,6 +32,6 @@ export const seedTestingDatabase = async (dataSource: DataSource) => {
     }
 
     return {
-        createdUsers
-    }
-}
+        createdUsers,
+    };
+};
