@@ -41,8 +41,6 @@ RUN npm i -g pm2 @nestjs/cli
 
 COPY --from=builder /usr/src/app/dist ./dist
 
-RUN npm run typeorm:migrate
-
 EXPOSE 3000
 
 CMD ["npm", "run", "start:prod"]
