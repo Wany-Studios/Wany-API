@@ -1,45 +1,27 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import {testingDatabaseModule, createUserFactory, seedTestingDatabase} from "../../utils.testing";
 import { UserService } from '../../modules/user/user.service';
 import { HashService } from '../../services/hash.service';
+import { DatabaseModule } from '../database/database.module';
+import { UserRepository } from '../../entities/user.entity';
 
 describe('UserService', () => {
     let userService: UserService;
+    let userRepo: UserRepository;
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
-            imports: [...testingDatabaseModule()],
-            providers: [HashService, UserService],
+            imports: [DatabaseModule],
+            providers: [HashService, UserService, UserRepository],
+            exports: [DatabaseModule],
         }).compile();
 
         userService = module.get<UserService>(UserService);
-
-        await seedTestingDatabase();
+        userRepo = module.get<UserRepository>(UserRepository);
     });
-
-    // beforeEach(async () => {
-    //     await TransactionalTestContext.start();
-    // });
-
-    // afterEach(async () => {
-    //     await TransactionalTestContext.finish();
-    // });
 
     it('should be defined', () => {
+        console.log({ userRepo });
+
         expect(userService).toBeDefined();
     });
-
-    // it('should create a user', async () => {
-    //     const createUser = createUserFactory();
-    //     expect(await userService.create(createUser)).not.toBe(Error);
-
-    //     const user = await userService.findUserById(createUser.id);
-
-    //     expect(user).not.toBe(Error);
-
-    //     if (isError(user)) return;
-
-    //     expect(user.username).toEqual(createUser.username);
-    //     expect(user.email).toEqual(createUser.email);
-    // });
 });
