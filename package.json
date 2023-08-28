@@ -13,7 +13,7 @@
         "start:debug": "nest start --debug --watch",
         "start:prod": "npx pm2-runtime start pm2.json",
         "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-        "test": "cross-env NODE_ENV=test jest",
+        "test": "cross-env NODE_ENV=test jest --watchAll",
         "test:watch": "jest --watch",
         "test:cov": "jest --coverage",
         "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
