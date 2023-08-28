@@ -1,6 +1,4 @@
-import { Request } from 'express';
-
-export function getRoutes(req: Request) {
+export function getRoutes() {
     return {
         avatar_url: 'public/{username}/avatar',
         current_user_url: 'user/me',

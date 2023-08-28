@@ -25,6 +25,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes, ApiTags, ApiBody, ApiOkResponse } from '@nestjs/swagger';
 import { User } from '../../entities/user.entity';
+import { getRoutes } from '../../helpers/get-routes.helper';
 
 @ApiTags('user')
 @Controller('user')
@@ -46,8 +47,6 @@ export class UserController {
             throw user;
         }
 
-        const urls = getBaseUrl(req);
-
         return {
             id: user.id,
             email: user.email,
@@ -57,7 +56,10 @@ export class UserController {
             birth_date: user.birth_date,
             updated_at: user.updated_at,
             created_at: user.created_at,
-            avatar_url: urls + `/user/public/${user.username}/avatar`,
+            avatar_url: getRoutes().avatar_url.replace(
+                '{username}',
+                user.username!,
+            ),
         };
     }
 

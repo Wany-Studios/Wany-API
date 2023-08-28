@@ -9,12 +9,9 @@ export abstract class AuthenticateDto {
         minLength: 3,
     })
     @IsString()
-    @Matches(/^[A-Za-z0-9_\-\s\p{Emoji}]+$/, {
-        message: 'Invalid characters in the username/email field',
-    })
     @MinLength(3)
-    @RemoveExtraSpaces()
     @Transform(({ value }) => value && value.toLowerCase())
+    @RemoveExtraSpaces()
     usernameOrEmail: string;
 
     @ApiProperty({

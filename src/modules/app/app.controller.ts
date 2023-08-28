@@ -21,6 +21,6 @@ export class AppController {
 
     @Get()
     info(@Req() req: Request) {
-        return getRoutes(req);
+        return getRoutes();
     }
 }

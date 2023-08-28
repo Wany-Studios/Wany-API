@@ -24,6 +24,9 @@ export abstract class CreateUserDto {
     @MinLength(3)
     @RemoveExtraSpaces()
     @Transform(({ value }) => value && value.toLowerCase())
+    @Matches(/^[a-z0-9_\-\s\p{Emoji}]+$/, {
+        message: 'Invalid characters in the username/email field',
+    })
     username: string;
 
     @ApiProperty({
