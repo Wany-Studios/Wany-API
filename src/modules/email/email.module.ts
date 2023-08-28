@@ -2,7 +2,9 @@ import { Module } from '@nestjs/common';
 import { EmailService } from './email.service';
 import { EmailConfirmationModule } from './email-confirmation/email-confirmation.module';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { EmailController } from './email.controller';
 import environment from '../../environment';
+import { UserModule } from '../user/user.module';
 
 @Module({
     imports: [
@@ -19,8 +21,10 @@ import environment from '../../environment';
             },
         }),
         EmailConfirmationModule,
+        UserModule,
     ],
     providers: [EmailService],
     exports: [EmailService, EmailConfirmationModule],
+    controllers: [EmailController],
 })
 export class EmailModule {}
