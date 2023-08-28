@@ -119,8 +119,8 @@ export class AuthController {
         @Query('token') token: string,
     ): Promise<{ message: string }> {
         const user = await this.userService.findUserById(req.user!.id);
-        if (isError(user)) throw user;
 
+        if (isError(user)) throw user;
         if ((user.situation! & UserSituation.NotVerified) === 0) {
             return {
                 message: 'Your account is already verified',
