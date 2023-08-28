@@ -53,7 +53,7 @@ const environment = Object.freeze({
             user: process.env.MAIL_AUTH_USER as string,
             pass: process.env.MAIL_AUTH_PASS as string,
         },
-        service: 'gmail',
+        service: process.env.MAIL_SERVICE,
     },
     upload: {
         gamesPath: path.join(__dirname, 'uploads', 'games'),
