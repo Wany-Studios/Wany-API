@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { ROLES_KEY } from '../../helpers/auth/roles.decorator';
 import { Reflector } from '@nestjs/core';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { Role, User } from '../../entities/user.entity';
 import { DataSource } from 'typeorm';
 import { JwtData } from './auth.service';
@@ -35,8 +35,15 @@ export class EnsureAuthGuard implements CanActivate {
 
             return true;
         } catch (error) {
-            if (error.name === 'TokenExpiredError')
-                throw new UnauthorizedException('Token is expired.');
+            if (error.name === 'TokenExpiredError') {
+                const res = context.switchToHttp().getResponse<Response>();
+
+                res.clearCookie('token');
+
+                throw new UnauthorizedException(
+                    'Session ended. Please log in again.',
+                );
+            }
             throw new UnauthorizedException('You must be logged.');
         }
     }
