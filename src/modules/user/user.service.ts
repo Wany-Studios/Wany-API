@@ -7,7 +7,7 @@ import {
 import { User, UserRepository } from '../../entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { HashService } from '../../services/hash.service';
-import { InsertResult } from 'typeorm';
+import { DeleteResult, InsertResult } from 'typeorm';
 import { isError } from '../../utils';
 
 @Injectable()
@@ -26,10 +26,14 @@ export class UserService {
                 return new NotFoundException('User does not exist');
             }
 
-            return await this.userRepository.save({
+            const updatedData = await this.userRepository.save({
                 ...userDataToUpdate,
+                username: userDataToUpdate.username?.toLowerCase(),
+                email: userDataToUpdate.email?.toLowerCase(),
                 id: userId,
             });
+
+            return updatedData as User;
         } catch (err) {
             return new InternalServerErrorException(err.message);
         }
@@ -58,7 +62,9 @@ export class UserService {
             }
 
             return await this.userRepository.insert({
-                ...user!,
+                ...user,
+                username: user.username!.toLocaleLowerCase(),
+                email: user.email!.toLocaleLowerCase(),
                 password: await this.hashService.hashPassword(user.password!),
             });
         } catch (err) {
@@ -68,6 +74,10 @@ export class UserService {
 
     async find(): Promise<User[]> {
         return await this.userRepository.find();
+    }
+
+    async delete(userId: string): Promise<DeleteResult> {
+        return await this.userRepository.delete(userId);
     }
 
     async getUserAvatarByUsername(
