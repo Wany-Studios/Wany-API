@@ -54,14 +54,12 @@ export class User {
     avatar?: string;
 
     @Column({
-        type: 'enum',
         enum: Role,
         default: Role.User,
     })
     role?: Role;
 
     @Column({
-        type: 'enum',
         enum: UserSituation,
         default: UserSituation.NotVerified,
     })
