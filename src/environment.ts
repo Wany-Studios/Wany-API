@@ -16,7 +16,7 @@ const environment = Object.freeze({
         host: '0.0.0.0',
         port: 3000,
         secure: process.env.HTTPS === 'true',
-        url: process.env.API_ENDPOINT,
+        url: process.env.API_ENDPOINT as string,
         entities: [
             __dirname + '/**/*.entity.js',
             __dirname + '/**/*.entity.ts',
