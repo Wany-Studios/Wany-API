@@ -135,13 +135,14 @@ export class UserController {
             throw user;
         }
 
-        const urls = getBaseUrl(req);
-
         return {
             id: user.id,
             username: user.username,
             email: user.email,
-            avatar_url: urls + `/user/public/${user.username}/avatar`,
+            avatar_url: getRoutes().avatar_url.replace(
+                '{username}',
+                user.username!,
+            ),
             role: user.role,
         };
     }
