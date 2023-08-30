@@ -23,9 +23,12 @@ export class Game {
     @PrimaryColumn()
     id: string;
 
+    @Column({ name: 'user_id' })
+    user_id: string;
+
     @ManyToOne(() => User, { nullable: false })
     @JoinColumn({ name: 'user_id' })
-    user: User;
+    private user?: User;
 
     @Column({ enum: Genre })
     genre: Genre;
@@ -41,14 +44,14 @@ export class Game {
 
     constructor(
         id: string,
-        user: User,
+        userId: string,
         genre: Genre,
         description: string,
         created_at?: Date,
         updated_at?: Date,
     ) {
         this.id = id;
-        this.user = user;
+        this.user_id = userId;
         this.genre = genre;
         this.description = description;
         this.created_at = created_at ?? new Date();

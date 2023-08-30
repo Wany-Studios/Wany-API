@@ -73,7 +73,7 @@ export class UserService {
     }
 
     async find(): Promise<User[]> {
-        return await this.userRepository.find();
+        return await this.userRepository.find({ cache: true });
     }
 
     async delete(userId: string): Promise<DeleteResult> {
