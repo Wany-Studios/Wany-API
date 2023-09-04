@@ -5,7 +5,10 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import environment from './environment';
 import cookieParser = require('cookie-parser');
 import session = require('express-session');
+import sessionFileStore = require('session-file-store');
 import helmet from 'helmet';
+
+const FileStore = sessionFileStore(session);
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
@@ -20,6 +23,10 @@ async function bootstrap() {
         session({
             secret: environment.secret,
             resave: false,
+            store:
+                !environment.isDevelopment && !environment.isTesting
+                    ? new FileStore()
+                    : undefined,
             saveUninitialized: false,
             name: 'wany',
             cookie: {

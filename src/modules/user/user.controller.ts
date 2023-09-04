@@ -7,7 +7,6 @@ import {
 } from '../../utils';
 import { EnsureAuthGuard } from '../auth/auth.guard';
 import { Request, Response } from 'express';
-import { getBaseUrl } from '../../helpers/get-base-url.helper';
 import environment from '../../environment';
 import {
     BadRequestException,

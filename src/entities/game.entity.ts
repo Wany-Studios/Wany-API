@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { User } from './user.entity';
 import { Injectable } from '@nestjs/common';
+import environment from '../environment';
 
 export enum Genre {
     Action = 'Action',
@@ -30,7 +31,10 @@ export class Game {
     @JoinColumn({ name: 'user_id' })
     private user?: User;
 
-    @Column({ enum: Genre })
+    @Column({
+        type: environment.isTesting ? 'text' : 'enum',
+        enum: Genre,
+    })
     genre: Genre;
 
     @Column()

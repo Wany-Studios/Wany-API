@@ -17,9 +17,16 @@ const environment = Object.freeze({
         port: 3000,
         secure: process.env.HTTPS === 'true',
         url: process.env.API_ENDPOINT as string,
+        // entities: isTesting
+        //     ? [__dirname + '/**/*.entity.js']
+        //     : [__dirname + '/**/*.entity.ts'],
         entities: [
-            __dirname + '/**/*.entity.js',
-            __dirname + '/**/*.entity.ts',
+            path.join(__dirname, '/**/*.entity.js'),
+            path.join(__dirname, '/**/*.entity.ts'),
+        ],
+        migrations: [
+            path.join(__dirname, '/migrations/*.js'),
+            path.join(__dirname, '/migrations/*.ts'),
         ],
     },
     database: {
