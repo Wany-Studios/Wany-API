@@ -18,7 +18,9 @@
         "test:cov": "cross-env NODE_ENV=test jest --coverage",
         "test:debug": "cross-env NODE_ENV=test node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
         "test:e2e": "cross-env NODE_ENV=test jest --config ./test/jest-e2e.json",
-        "typeorm:migrate": "npx ts-node ./node_modules/typeorm/cli.js migration:run"
+        "typeorm:cli": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli",
+        "migration:create": "dotenv-flow -- npm run typeorm:cli migration:create -o -n",
+        "migration:run": "npm run typeorm:cli migration:run -- -d dist/modules/database/database.data-source.js"
     },
     "dependencies": {
         "@nestjs-modules/mailer": "^1.9.1",
@@ -41,6 +43,7 @@
         "nodemailer": "^6.9.4",
         "reflect-metadata": "^0.1.13",
         "rxjs": "^7.8.1",
+        "session-file-store": "^1.5.0",
         "sqlite3": "^5.1.6",
         "typeorm": "^0.3.17"
     },
@@ -58,11 +61,13 @@
         "@types/multer": "^1.4.7",
         "@types/node": "^20.3.1",
         "@types/nodemailer": "^6.4.8",
+        "@types/session-file-store": "^1.2.2",
         "@types/supertest": "^2.0.12",
         "@typescript-eslint/eslint-plugin": "^5.59.11",
         "@typescript-eslint/parser": "^5.59.11",
         "better-sqlite3": "^8.5.0",
         "cross-env": "^7.0.3",
+        "dotenv-cli": "^7.3.0",
         "eslint": "^8.42.0",
         "eslint-config-prettier": "^8.8.0",
         "eslint-plugin-prettier": "^4.2.1",

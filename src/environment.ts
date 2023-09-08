@@ -16,9 +16,14 @@ const environment = Object.freeze({
         host: '0.0.0.0',
         port: 3000,
         secure: process.env.HTTPS === 'true',
+        url: process.env.SERVER_URL as string,
         entities: [
-            __dirname + '/**/*.entity.js',
-            __dirname + '/**/*.entity.ts',
+            path.join(__dirname, '/**/*.entity.js'),
+            path.join(__dirname, '/**/*.entity.ts'),
+        ],
+        migrations: [
+            path.join(__dirname, '/migrations/*.js'),
+            path.join(__dirname, '/migrations/*.ts'),
         ],
     },
     database: {

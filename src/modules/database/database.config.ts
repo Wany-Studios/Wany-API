@@ -9,6 +9,7 @@ const config: DataSourceOptions = {
     password: environment.database.password,
     database: environment.database.name,
     entities: environment.server.entities,
+    migrations: environment.server.migrations,
     synchronize: environment.database.synchronize,
 };
 

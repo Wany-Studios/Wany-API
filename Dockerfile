@@ -6,15 +6,13 @@ FROM node:16 AS builder
 
 WORKDIR /usr/src/app
 
-COPY package*.json ./
-
 # Install a specific version of npm globally
 RUN npm i -g npm@7.24.0
 
+COPY . .
+
 # Install dependencies
 RUN npm ci
-
-COPY . .
 
 # Build the application
 RUN npm run build
@@ -37,11 +35,11 @@ RUN npm i -g npm@7.24.0
 RUN npm ci --only=production
 
 # Install global packages
-RUN npm i -g pm2 @nestjs/cli
+RUN npm i -g pm2 @nestjs/cli typeorm
 
 COPY --from=builder /usr/src/app/dist ./dist
 
 EXPOSE 3000
 
-CMD ["npm", "run", "start:prod"]
+CMD ["sh", "-c", "typeorm migration:run -d dist/modules/database/database.data-source.js && npm run start:prod"]
 #--------------------------------------------------------------

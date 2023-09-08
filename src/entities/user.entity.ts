@@ -7,6 +7,7 @@ import {
     PrimaryColumn,
     Repository,
 } from 'typeorm';
+import environment from '../environment';
 
 export enum UserSituation {
     None = 0,
@@ -54,6 +55,7 @@ export class User {
     avatar?: string;
 
     @Column({
+        type: environment.isTesting ? 'text' : 'enum',
         enum: Role,
         default: Role.User,
     })
