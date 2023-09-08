@@ -21,6 +21,10 @@ export class AppController {
 
     @Get()
     info(@Req() req: Request) {
-        return getRoutes();
+        try {
+            return getRoutes();
+        } catch (err) {
+            return { err };
+        }
     }
 }

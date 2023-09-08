@@ -50,7 +50,6 @@ export class UserController {
             id: user.id,
             email: user.email,
             username: user.username,
-            avatar: user.avatar,
             role: user.role,
             birth_date: user.birth_date,
             updated_at: user.updated_at,
