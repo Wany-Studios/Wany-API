@@ -4,17 +4,21 @@ import {
     InternalServerErrorException,
     NotFoundException,
 } from '@nestjs/common';
-import { Game, GameRepository } from '../../entities/game.entity';
+import { GameEntity, GameRepository } from '../../entities/game.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserService } from '../user/user.service';
 import { DeleteResult, InsertResult } from 'typeorm';
 import { isError } from '../../utils';
+import { Game } from '../models/game';
+import { GameMapper } from '../../mapper/game-mapper';
 
 @Injectable()
 export class GameService {
     constructor(
-        @InjectRepository(Game) private readonly gameRepository: GameRepository,
+        @InjectRepository(GameEntity)
+        private readonly gameRepository: GameRepository,
         private readonly userService: UserService,
+        private readonly gameMapper: GameMapper,
     ) {}
 
     async create(
@@ -26,39 +30,44 @@ export class GameService {
         | NotFoundException
     > {
         try {
-            const user = await this.userService.findUserById(game.id);
+            const entity = this.gameMapper.toEntity(game);
+            const user = await this.userService.findUserById(entity.user_id);
 
             if (isError(user)) {
                 return user;
             }
 
-            return this.gameRepository.insert(game);
+            return this.gameRepository.insert(entity);
         } catch (err) {
             return new InternalServerErrorException(err.message);
         }
     }
 
     async find(): Promise<Game[]> {
-        return await this.gameRepository.find({ cache: true });
+        const entities = await this.gameRepository.find({ cache: true });
+        return entities.map((entity) => this.gameMapper.toModel(entity));
     }
 
     async getGameById(
         gameId: string,
     ): Promise<Game | NotFoundException | InternalServerErrorException> {
         try {
-            const game = await this.gameRepository.findOneBy({ id: gameId });
-            if (!game) return new NotFoundException('Game not found');
-            return game;
+            const entity = await this.gameRepository.findOneBy({ id: gameId });
+            if (!entity) return new NotFoundException('Game not found');
+            return this.gameMapper.toModel(entity);
         } catch (err) {
             return new InternalServerErrorException(err.message);
         }
     }
 
     async findGamesByUserId(userId: string): Promise<Game[]> {
-        return await this.gameRepository.find({ where: { user_id: userId } });
+        const games = await this.gameRepository.find({
+            where: { user_id: userId },
+        });
+        return games.map((entity) => this.gameMapper.toModel(entity));
     }
 
-    async delete(userId: string): Promise<DeleteResult> {
-        return await this.gameRepository.delete(userId);
+    async delete(gameId: string): Promise<DeleteResult> {
+        return await this.gameRepository.delete({ id: gameId });
     }
 }

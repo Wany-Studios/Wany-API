@@ -5,6 +5,7 @@ import {
     TableColumn,
     TableForeignKey,
 } from 'typeorm';
+import { Genre } from '../modules/models/genre';
 
 export class CreateGame1693860946598 implements MigrationInterface {
     public async up(queryRunner: QueryRunner): Promise<void> {
@@ -24,10 +25,18 @@ export class CreateGame1693860946598 implements MigrationInterface {
                     {
                         name: 'genre',
                         type: 'enum',
-                        enum: ['Action', 'Terror', 'Horror', 'Adventure'],
+                        enum: Object.keys(Genre),
+                    },
+                    {
+                        name: 'title',
+                        type: 'varchar',
                     },
                     {
                         name: 'description',
+                        type: 'varchar',
+                    },
+                    {
+                        name: 'game_path',
                         type: 'varchar',
                     },
                     {

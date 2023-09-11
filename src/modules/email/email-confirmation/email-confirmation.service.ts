@@ -4,7 +4,7 @@ import {
     NotFoundException,
 } from '@nestjs/common';
 import {
-    EmailConfirmation,
+    EmailConfirmationEntity,
     EmailConfirmationRepository,
 } from '../../../entities/email-confirmation.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -14,7 +14,7 @@ import { TokenService } from '../../../services/token.service';
 @Injectable()
 export class EmailConfirmationService {
     constructor(
-        @InjectRepository(EmailConfirmation)
+        @InjectRepository(EmailConfirmationEntity)
         private emailConfirmationRepository: EmailConfirmationRepository,
         private readonly emailConfirmationTokenService: TokenService,
     ) {}
@@ -25,7 +25,7 @@ export class EmailConfirmationService {
 
     async findEmailConfirmationWithToken(
         token: string,
-    ): Promise<EmailConfirmation | NotFoundException> {
+    ): Promise<EmailConfirmationEntity | NotFoundException> {
         const emailConfirmation =
             await this.emailConfirmationRepository.findOneBy({ token });
         return (
@@ -56,7 +56,7 @@ export class EmailConfirmationService {
     }
 
     async createEmailConfirmation(
-        emailConfirmation: EmailConfirmation,
+        emailConfirmation: EmailConfirmationEntity,
     ): Promise<InsertResult | InternalServerErrorException> {
         try {
             return await this.emailConfirmationRepository.insert(

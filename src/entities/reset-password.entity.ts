@@ -9,10 +9,10 @@ import {
     PrimaryColumn,
     Repository,
 } from 'typeorm';
-import { User } from './user.entity';
+import { UserEntity } from './user.entity';
 
 @Entity()
-export class ResetPassword {
+export class ResetPasswordEntity {
     @PrimaryColumn()
     id: string;
 
@@ -22,9 +22,9 @@ export class ResetPassword {
     @Column({ name: 'user_id' })
     user_id: string;
 
-    @ManyToOne(() => User, { nullable: false })
+    @ManyToOne(() => UserEntity, { nullable: false })
     @JoinColumn({ name: 'user_id' })
-    user?: User;
+    user?: UserEntity;
 
     @Column()
     used: boolean;
@@ -53,4 +53,4 @@ export class ResetPassword {
 }
 
 @Injectable()
-export class ResetPasswordRepository extends Repository<ResetPassword> {}
+export class ResetPasswordRepository extends Repository<ResetPasswordEntity> {}

@@ -11,6 +11,8 @@ import {
     UnauthorizedException,
     Body,
     Res,
+    UsePipes,
+    ValidationPipe,
 } from '@nestjs/common';
 import { CreateUserDto } from '../../dtos/create-user.dto';
 import { validateOrReject } from 'class-validator';
@@ -25,7 +27,7 @@ import {
 import { Role, UserSituation } from '../../entities/user.entity';
 import { randomUUID } from 'crypto';
 import { EmailService } from '../email/email.service';
-import { EmailConfirmation } from '../../entities/email-confirmation.entity';
+import { EmailConfirmationEntity } from '../../entities/email-confirmation.entity';
 import { EmailConfirmationService } from '../email/email-confirmation/email-confirmation.service';
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
@@ -52,9 +54,8 @@ export class AuthController {
         description: 'The account is created. Returns a success message.',
     })
     @Post('/signup')
+    @UsePipes(new ValidationPipe())
     async register(@Body() data: CreateUserDto): Promise<{ message: string }> {
-        await validateOrReject(data);
-
         const { dateOfBirth, email, password, username } = data;
 
         const result = await this.userService.create({
@@ -84,7 +85,7 @@ export class AuthController {
          * generate email confirmation token,
          * save in database and then send in the user email
          */
-        const emailConfirmation: EmailConfirmation = {
+        const emailConfirmation: EmailConfirmationEntity = {
             id: randomUUID(),
             email: user.email!,
             token: this.emailConfirmationService.generateToken(),
@@ -168,6 +169,7 @@ export class AuthController {
             'An token is sent to user email. Returns an information message.',
     })
     @Post('/forgot-password')
+    @UsePipes(new ValidationPipe())
     async forgotPassword(
         @Body() { email }: ForgotPasswordDto,
     ): Promise<{ message: string }> {
@@ -198,11 +200,10 @@ export class AuthController {
             'The user password was recovered. Returns a success message.',
     })
     @Put('/reset-password')
+    @UsePipes(new ValidationPipe())
     async resetPassword(
         @Body() payload: ResetPasswordDto,
     ): Promise<{ message: string }> {
-        await validateOrReject(payload);
-
         const resetPassword = await this.authService.findResetPasswordByToken(
             payload.token,
         );

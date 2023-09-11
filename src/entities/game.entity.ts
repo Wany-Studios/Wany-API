@@ -8,60 +8,45 @@ import {
     Repository,
     UpdateDateColumn,
 } from 'typeorm';
-import { User } from './user.entity';
+import { UserEntity } from './user.entity';
 import { Injectable } from '@nestjs/common';
 import environment from '../environment';
+import { Genre } from '../modules/models/genre';
+import { Game } from '../modules/models/game';
 
-export enum Genre {
-    Action = 'Action',
-    Terror = 'Terror',
-    Horror = 'Horror',
-    Adventure = 'Adventure',
-}
-
-@Entity()
-export class Game {
+@Entity('game')
+export class GameEntity {
     @PrimaryColumn()
     id: string;
 
     @Column({ name: 'user_id' })
     user_id: string;
 
-    @ManyToOne(() => User, { nullable: false })
+    @ManyToOne(() => UserEntity, { nullable: false })
     @JoinColumn({ name: 'user_id' })
-    private user?: User;
+    private user?: UserEntity;
 
     @Column({
         type: environment.isTesting ? 'text' : 'enum',
         enum: Genre,
     })
-    genre: Genre;
+    genre: string;
+
+    @Column()
+    title: string;
 
     @Column()
     description: string;
+
+    @Column()
+    game_path: string;
 
     @CreateDateColumn()
     created_at?: Date;
 
     @UpdateDateColumn()
     updated_at?: Date;
-
-    constructor(
-        id: string,
-        userId: string,
-        genre: Genre,
-        description: string,
-        created_at?: Date,
-        updated_at?: Date,
-    ) {
-        this.id = id;
-        this.user_id = userId;
-        this.genre = genre;
-        this.description = description;
-        this.created_at = created_at ?? new Date();
-        this.updated_at = updated_at;
-    }
 }
 
 @Injectable()
-export class GameRepository extends Repository<Game> {}
+export class GameRepository extends Repository<GameEntity> {}

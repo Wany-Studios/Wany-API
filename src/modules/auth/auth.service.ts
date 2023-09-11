@@ -4,12 +4,12 @@ import {
     InternalServerErrorException,
     NotFoundException,
 } from '@nestjs/common';
-import { Role, User } from '../../entities/user.entity';
+import { Role, UserEntity } from '../../entities/user.entity';
 import { UserService } from '../user/user.service';
 import { HashService } from '../../services/hash.service';
 import { isError } from '../../utils';
 import {
-    ResetPassword,
+    ResetPasswordEntity,
     ResetPasswordRepository,
 } from '../../entities/reset-password.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -33,7 +33,7 @@ export class AuthService {
     constructor(
         private readonly userService: UserService,
         private readonly hashService: HashService,
-        @InjectRepository(ResetPassword)
+        @InjectRepository(ResetPasswordEntity)
         private readonly resetPasswordRepository: ResetPasswordRepository,
         private jwtService: JwtService,
     ) {}
@@ -54,7 +54,7 @@ export class AuthService {
         return user;
     }
 
-    async signIn(user: User, res: Response) {
+    async signIn(user: UserEntity, res: Response) {
         const payload: JwtData = {
             sub: user.id,
             email: user.email!,
@@ -77,7 +77,7 @@ export class AuthService {
     async findResetPasswordByToken(
         token: string,
     ): Promise<
-        ResetPassword | BadRequestException | InternalServerErrorException
+        ResetPasswordEntity | BadRequestException | InternalServerErrorException
     > {
         try {
             const resetPassword = await this.resetPasswordRepository.findOneBy({
@@ -117,7 +117,7 @@ export class AuthService {
 
     async createResetPasswordToken(
         resetPasswordData: Omit<
-            ResetPassword,
+            ResetPasswordEntity,
             | 'id'
             | 'setExpirationTime'
             | 'checkExpirationTime'

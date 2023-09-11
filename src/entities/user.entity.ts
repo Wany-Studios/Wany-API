@@ -24,8 +24,8 @@ export enum Role {
     Admin = 'Admin',
 }
 
-@Entity()
-export class User {
+@Entity('user')
+export class UserEntity {
     @PrimaryColumn()
     id: string;
 
@@ -75,4 +75,4 @@ export class User {
 }
 
 @Injectable()
-export class UserRepository extends Repository<User> {}
+export class UserRepository extends Repository<UserEntity> {}

@@ -8,20 +8,20 @@ import {
     Repository,
     UpdateDateColumn,
 } from 'typeorm';
-import { User } from './user.entity';
+import { UserEntity } from './user.entity';
 import { Injectable } from '@nestjs/common';
 
 @Entity()
-export class EmailConfirmation {
+export class EmailConfirmationEntity {
     @PrimaryColumn()
     id: string;
 
     @Column({ name: 'user_id' })
     user_id: string;
 
-    @ManyToOne(() => User, { nullable: false })
+    @ManyToOne(() => UserEntity, { nullable: false })
     @JoinColumn({ name: 'user_id' })
-    user?: User;
+    user?: UserEntity;
 
     @Column()
     email: string;
@@ -40,4 +40,4 @@ export class EmailConfirmation {
 }
 
 @Injectable()
-export class EmailConfirmationRepository extends Repository<EmailConfirmation> {}
+export class EmailConfirmationRepository extends Repository<EmailConfirmationEntity> {}

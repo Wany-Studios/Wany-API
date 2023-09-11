@@ -6,7 +6,7 @@ import { UserService } from '../user/user.service';
 import { throwErrorOrContinue } from '../../utils';
 import { randomUUID } from 'node:crypto';
 import { EmailService } from './email.service';
-import { EmailConfirmation } from '../../entities/email-confirmation.entity';
+import { EmailConfirmationEntity } from '../../entities/email-confirmation.entity';
 import { UserSituation } from '../../entities/user.entity';
 
 @Controller('email')
@@ -37,7 +37,7 @@ export class EmailController {
          * generate email confirmation token,
          * save in database and then send in the user email
          */
-        const emailConfirmation: EmailConfirmation = {
+        const emailConfirmation: EmailConfirmationEntity = {
             id: randomUUID(),
             email: user.email!,
             token: this.emailConfirmationService.generateToken(),

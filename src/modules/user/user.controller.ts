@@ -23,7 +23,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes, ApiTags, ApiBody, ApiOkResponse } from '@nestjs/swagger';
-import { User } from '../../entities/user.entity';
+import { UserEntity } from '../../entities/user.entity';
 import { getRoutes } from '../../helpers/get-routes.helper';
 
 @ApiTags('user')
@@ -38,7 +38,7 @@ export class UserController {
     @Get('/me')
     async getMe(
         @Req() req: Request,
-    ): Promise<Partial<User> & { avatar_url: string }> {
+    ): Promise<Partial<UserEntity> & { avatar_url: string }> {
         const user = await this.userService.findUserById(req.user.id!);
 
         if (isError(user)) {

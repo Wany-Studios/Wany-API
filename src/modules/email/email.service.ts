@@ -1,7 +1,7 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { User } from '../../entities/user.entity';
-import { EmailConfirmation } from '../../entities/email-confirmation.entity';
+import { UserEntity } from '../../entities/user.entity';
+import { EmailConfirmationEntity } from '../../entities/email-confirmation.entity';
 import environment from '../../environment';
 
 @Injectable()
@@ -9,8 +9,8 @@ export class EmailService {
     constructor(private mailerService: MailerService) {}
 
     async sendConfirmationEmail(
-        user: User,
-        emailCofirmation: EmailConfirmation,
+        user: UserEntity,
+        emailCofirmation: EmailConfirmationEntity,
     ) {
         return await this.sendEmail(
             user.email!,
@@ -41,7 +41,7 @@ export class EmailService {
         );
     }
 
-    async sendResetPasswordTokenEmail(user: User, token: string) {
+    async sendResetPasswordTokenEmail(user: UserEntity, token: string) {
         const resetPasswordEndpoint = `${environment.client.url}reset-password?token=${token}`;
 
         return await this.sendEmail(
@@ -81,7 +81,7 @@ export class EmailService {
         );
     }
 
-    async sendWelcomeNewUserEmail(user: User) {
+    async sendWelcomeNewUserEmail(user: UserEntity) {
         return await this.sendEmail(
             user.email!,
             environment.mail.from,

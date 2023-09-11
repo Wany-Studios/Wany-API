@@ -4,7 +4,7 @@ import {
     InternalServerErrorException,
     NotFoundException,
 } from '@nestjs/common';
-import { User, UserRepository } from '../../entities/user.entity';
+import { UserEntity, UserRepository } from '../../entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { HashService } from '../../services/hash.service';
 import { DeleteResult, InsertResult } from 'typeorm';
@@ -13,14 +13,15 @@ import { isError } from '../../utils';
 @Injectable()
 export class UserService {
     constructor(
-        @InjectRepository(User) private readonly userRepository: UserRepository,
+        @InjectRepository(UserEntity)
+        private readonly userRepository: UserRepository,
         private hashService: HashService,
     ) {}
 
     async update(
         userId: string,
-        userDataToUpdate: Omit<User, 'id'>,
-    ): Promise<User | NotFoundException> {
+        userDataToUpdate: Omit<UserEntity, 'id'>,
+    ): Promise<UserEntity | NotFoundException> {
         try {
             if (isError(await this.findUserById(userId!))) {
                 return new NotFoundException('User does not exist');
@@ -33,14 +34,14 @@ export class UserService {
                 id: userId,
             });
 
-            return updatedData as User;
+            return updatedData as UserEntity;
         } catch (err) {
             return new InternalServerErrorException(err.message);
         }
     }
 
     async create(
-        user: User,
+        user: UserEntity,
     ): Promise<
         InsertResult | InternalServerErrorException | BadRequestException
     > {
@@ -72,7 +73,7 @@ export class UserService {
         }
     }
 
-    async find(): Promise<User[]> {
+    async find(): Promise<UserEntity[]> {
         return await this.userRepository.find({ cache: true });
     }
 
@@ -91,7 +92,7 @@ export class UserService {
     async findUserById(
         id: string,
     ): Promise<
-        | User
+        | UserEntity
         | NotFoundException
         | InternalServerErrorException
         | BadRequestException
@@ -109,7 +110,7 @@ export class UserService {
     async findUserByUsername(
         username: string,
     ): Promise<
-        | User
+        | UserEntity
         | NotFoundException
         | InternalServerErrorException
         | BadRequestException
@@ -128,7 +129,7 @@ export class UserService {
     async findUserByEmail(
         email: string,
     ): Promise<
-        | User
+        | UserEntity
         | NotFoundException
         | InternalServerErrorException
         | BadRequestException
@@ -147,7 +148,7 @@ export class UserService {
     async findUserByUsernameOrEmail(
         usernameOrEmail: string,
     ): Promise<
-        | User
+        | UserEntity
         | NotFoundException
         | InternalServerErrorException
         | BadRequestException

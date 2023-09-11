@@ -14,5 +14,8 @@ export function getRoutes() {
         user_url: join('user/public/{username}'),
         upload_avatar_url: join('user/upload-avatar'),
         verify_email_url: join('auth/email/verification?token={token}'),
+        create_game_url: join('game/create'),
+        get_game_url: join('game/{id}'),
+        delete_game_url: join('game/delete/{id}'),
     };
 }

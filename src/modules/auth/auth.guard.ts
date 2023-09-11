@@ -7,7 +7,7 @@ import {
 import { ROLES_KEY } from '../../helpers/auth/roles.decorator';
 import { Reflector } from '@nestjs/core';
 import { Request, Response } from 'express';
-import { Role, User } from '../../entities/user.entity';
+import { Role, UserEntity } from '../../entities/user.entity';
 import { DataSource } from 'typeorm';
 import { JwtData } from './auth.service';
 import * as jwt from 'jsonwebtoken';
@@ -26,7 +26,7 @@ export class EnsureAuthGuard implements CanActivate {
             const payload = jwt.verify(token, environment.secret) as JwtData;
 
             const user = await this.dataSource
-                .getRepository(User)
+                .getRepository(UserEntity)
                 .findOneByOrFail({ id: payload.sub });
 
             throwErrorOrContinue(user);

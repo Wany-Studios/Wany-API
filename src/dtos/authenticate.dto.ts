@@ -1,5 +1,5 @@
 import { Transform } from 'class-transformer';
-import { IsString, Matches, MinLength } from 'class-validator';
+import { IsString, MinLength } from 'class-validator';
 import { RemoveExtraSpaces } from '../helpers/class-validator/remove-extra-spaces.decorator';
 import { ApiProperty } from '@nestjs/swagger';
 
