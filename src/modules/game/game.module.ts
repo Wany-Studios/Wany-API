@@ -4,10 +4,10 @@ import { GameController } from './game.controller';
 import { DatabaseModule } from '../database/database.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { FileFilterCallback, diskStorage } from 'multer';
-import { randomUUID } from 'node:crypto';
 import environment from '../../environment';
-import { UserModule } from '../user/user.module';
+import { randomUUID } from 'node:crypto';
 import { GameMapper } from '../../mapper/game-mapper';
+import { UserModule } from '../user/user.module';
 
 @Module({
     imports: [
@@ -30,7 +30,7 @@ import { GameMapper } from '../../mapper/game-mapper';
                 }
             },
             storage: diskStorage({
-                destination: environment.upload.gamesPath,
+                destination: environment.upload.avatarPath,
                 filename(req, file, cb) {
                     return cb(
                         null,

@@ -63,6 +63,10 @@ const environment = Object.freeze({
         },
         service: process.env.MAIL_SERVICE,
     },
+    public: {
+        rootPath: path.join(__dirname, '..', 'public'),
+        gamesPath: path.join(__dirname, '..', 'public', 'games'),
+    },
     upload: {
         gamesPath: path.join(__dirname, 'uploads', 'games'),
         avatarPath: path.join(__dirname, 'uploads', 'avatars'),

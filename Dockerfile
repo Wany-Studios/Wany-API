@@ -38,6 +38,7 @@ RUN npm ci --only=production
 RUN npm i -g pm2 @nestjs/cli typeorm
 
 COPY --from=builder /usr/src/app/dist ./dist
+COPY public ./public
 
 EXPOSE 3000
 

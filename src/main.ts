@@ -37,7 +37,7 @@ async function bootstrap() {
             },
         }),
     );
-    app.use(helmet());
+    // app.use(helmet());
 
     if (environment.isDevelopment) {
         // eslint-disable-next-line @typescript-eslint/no-var-requires

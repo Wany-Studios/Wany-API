@@ -17,5 +17,6 @@ export function getRoutes() {
         create_game_url: join('game/create'),
         get_game_url: join('game/{id}'),
         delete_game_url: join('game/delete/{id}'),
+        public_url: join('public'),
     };
 }
