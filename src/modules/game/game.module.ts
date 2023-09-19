@@ -30,7 +30,7 @@ import { UserModule } from '../user/user.module';
                 }
             },
             storage: diskStorage({
-                destination: environment.upload.avatarPath,
+                destination: environment.upload.gamesPath,
                 filename(req, file, cb) {
                     return cb(
                         null,

@@ -20,12 +20,22 @@ import { EnsureAuthGuard } from '../auth/auth.guard';
 import { GameService } from './game.service';
 import { Game } from '../models/game';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { deleteFile, isError } from '../../utils';
+import {
+    createFolder,
+    deleteFile,
+    deleteFolder,
+    isError,
+    throwErrorOrContinue,
+} from '../../utils';
 import { Request } from 'express';
 import { UserService } from '../user/user.service';
 import { Role } from '../../entities/user.entity';
-import { getRoutes } from '../../helpers/get-routes.helper';
 import { GameMapper } from '../../mapper/game-mapper';
+import { randomUUID } from 'crypto';
+import { join } from 'node:path';
+import environment from '../../environment';
+import * as unzipper from 'unzipper';
+import * as fs from 'fs';
 
 @ApiTags('game')
 @Controller('game')
@@ -53,20 +63,34 @@ export class GameController {
             throw new BadRequestException('File is required');
         }
         const { description, genre, title } = data;
-        const { path: gamePath } = file;
+        const { path: gameZipPath } = file;
+
+        const publicFolderPath = join(
+            environment.public.gamesPath,
+            `${randomUUID()}${randomUUID()}`,
+        );
+
+        throwErrorOrContinue(await createFolder(publicFolderPath));
+
+        await fs
+            .createReadStream(gameZipPath)
+            .pipe(unzipper.Extract({ path: publicFolderPath, concurrency: 5 }))
+            .promise();
 
         const game = new Game({
             description,
             genre,
             title,
-            gamePath,
+            gamePath: publicFolderPath,
             userId: req.user.id!,
         });
 
         const result = await this.gameService.create(game);
 
+        await deleteFile(gameZipPath);
+
         if (isError(result)) {
-            await deleteFile(gamePath);
+            await deleteFolder(publicFolderPath);
             throw result;
         }
 

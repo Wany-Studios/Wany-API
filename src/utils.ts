@@ -64,6 +64,21 @@ export function deleteFile(filePath: string): Promise<null | Error> {
     });
 }
 
+export function deleteFolder(
+    dirPath: string,
+    maxRetries = 5,
+    retryDelay = 1000,
+): Promise<null | Error> {
+    return new Promise((res) => {
+        try {
+            fs.rmdirSync(dirPath, { maxRetries, retryDelay });
+            res(null);
+        } catch (err) {
+            res(err);
+        }
+    });
+}
+
 export function folderExists(folderPath: string) {
     try {
         fs.accessSync(folderPath, fs.constants.F_OK);
@@ -76,7 +91,7 @@ export function folderExists(folderPath: string) {
 export function createFolder(folderPath: string): Promise<null | Error> {
     return new Promise((res) => {
         try {
-            fs.mkdirSync(folderPath);
+            fs.mkdirSync(folderPath, { recursive: true });
             res(null);
         } catch (err) {
             res(err);
