@@ -12,9 +12,8 @@ import { UserEntity } from './user.entity';
 import { Injectable } from '@nestjs/common';
 import environment from '../environment';
 import { Genre } from '../modules/models/genre';
-import { Game } from '../modules/models/game';
 
-@Entity('game')
+@Entity({ name: 'game' })
 export class GameEntity {
     @PrimaryColumn()
     id: string;

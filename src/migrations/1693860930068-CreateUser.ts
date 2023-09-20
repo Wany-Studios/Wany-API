@@ -10,6 +10,7 @@ export class CreateUser1693860930068 implements MigrationInterface {
                         name: 'id',
                         type: 'varchar',
                         isPrimary: true,
+                        length: '36',
                     },
                     {
                         name: 'birth_date',

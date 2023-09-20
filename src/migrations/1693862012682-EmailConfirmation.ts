@@ -15,10 +15,12 @@ export class EmailConfirmation1693862012682 implements MigrationInterface {
                         name: 'id',
                         type: 'varchar',
                         isPrimary: true,
+                        length: '36',
                     },
                     {
                         name: 'user_id',
                         type: 'varchar',
+                        length: '36',
                     },
                     {
                         name: 'email',

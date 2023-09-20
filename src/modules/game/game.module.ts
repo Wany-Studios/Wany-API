@@ -8,6 +8,7 @@ import environment from '../../environment';
 import { randomUUID } from 'node:crypto';
 import { GameMapper } from '../../mapper/game-mapper';
 import { UserModule } from '../user/user.module';
+import { ZipService } from '../../services/zip.service';
 
 @Module({
     imports: [
@@ -40,7 +41,7 @@ import { UserModule } from '../user/user.module';
             }),
         }),
     ],
-    providers: [GameService, GameMapper],
+    providers: [GameService, GameMapper, ZipService],
     controllers: [GameController],
     exports: [GameService],
 })

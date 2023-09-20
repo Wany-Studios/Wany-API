@@ -17,10 +17,12 @@ export class CreateGame1693860946598 implements MigrationInterface {
                         name: 'id',
                         type: 'varchar',
                         isPrimary: true,
+                        length: '36',
                     },
                     {
                         name: 'user_id',
                         type: 'varchar',
+                        length: '36',
                     },
                     {
                         name: 'genre',

@@ -43,6 +43,10 @@ export class GameMapper {
                 updatedAt: game.updatedAt,
                 title: game.title,
                 userId: game.userId,
+                public_game_url: getRoutes().public_game_url.replace(
+                    '{game-path}',
+                    game.gamePath,
+                ),
                 game_url: getRoutes().get_game_url.replace('{id}', game.id),
                 delete_url: getRoutes().delete_game_url.replace(
                     '{id}',

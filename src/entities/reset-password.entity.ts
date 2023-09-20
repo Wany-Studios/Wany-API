@@ -11,7 +11,7 @@ import {
 } from 'typeorm';
 import { UserEntity } from './user.entity';
 
-@Entity()
+@Entity({ name: 'reset_password' })
 export class ResetPasswordEntity {
     @PrimaryColumn()
     id: string;

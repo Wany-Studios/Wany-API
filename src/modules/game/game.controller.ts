@@ -21,7 +21,6 @@ import { GameService } from './game.service';
 import { Game } from '../models/game';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
-    createFolder,
     deleteFile,
     deleteFolder,
     isError,
@@ -31,11 +30,9 @@ import { Request } from 'express';
 import { UserService } from '../user/user.service';
 import { Role } from '../../entities/user.entity';
 import { GameMapper } from '../../mapper/game-mapper';
-import { randomUUID } from 'crypto';
+import { ZipService } from '../../services/zip.service';
 import { join } from 'node:path';
 import environment from '../../environment';
-import * as unzipper from 'unzipper';
-import * as fs from 'fs';
 
 @ApiTags('game')
 @Controller('game')
@@ -44,6 +41,7 @@ export class GameController {
         private readonly gameService: GameService,
         private readonly userService: UserService,
         private readonly gameMapper: GameMapper,
+        private readonly zipService: ZipService,
     ) {}
 
     @ApiCreatedResponse({
@@ -65,23 +63,17 @@ export class GameController {
         const { description, genre, title } = data;
         const { path: gameZipPath } = file;
 
-        const publicFolderPath = join(
-            environment.public.gamesPath,
-            `${randomUUID()}${randomUUID()}`,
+        const gamePathId = await this.zipService.unzipToGamesPublicFolder(
+            gameZipPath,
         );
 
-        throwErrorOrContinue(await createFolder(publicFolderPath));
-
-        await fs
-            .createReadStream(gameZipPath)
-            .pipe(unzipper.Extract({ path: publicFolderPath, concurrency: 5 }))
-            .promise();
+        throwErrorOrContinue(gamePathId);
 
         const game = new Game({
             description,
             genre,
             title,
-            gamePath: publicFolderPath,
+            gamePath: gamePathId,
             userId: req.user.id!,
         });
 
@@ -90,7 +82,7 @@ export class GameController {
         await deleteFile(gameZipPath);
 
         if (isError(result)) {
-            await deleteFolder(publicFolderPath);
+            await deleteFolder(gamePathId);
             throw result;
         }
 
@@ -120,8 +112,7 @@ export class GameController {
                 "You don't have permission to delete this game",
             );
         }
-
-        await deleteFile(game.gamePath);
+        await deleteFile(join(environment.public.gamesPath, game.gamePath));
         await this.gameService.delete(game.id);
         return {
             message: 'Game deleted sucessfully',

@@ -15,6 +15,7 @@ export class ResetPassword1693862000976 implements MigrationInterface {
                         name: 'id',
                         type: 'varchar',
                         isPrimary: true,
+                        length: '36',
                     },
                     {
                         name: 'token',

@@ -11,7 +11,7 @@ import {
 import { UserEntity } from './user.entity';
 import { Injectable } from '@nestjs/common';
 
-@Entity()
+@Entity({ name: 'email_confirmation' })
 export class EmailConfirmationEntity {
     @PrimaryColumn()
     id: string;

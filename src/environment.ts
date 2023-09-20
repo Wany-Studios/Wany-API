@@ -34,9 +34,7 @@ const environment = Object.freeze({
         port: parseInt(process.env.DB_PORT as string),
         host: process.env.DB_HOST as string,
         synchronize:
-            process.env.SYNC_DATABASE === 'true' || isDevelopment || isTesting
-                ? true
-                : false,
+            process.env.SYNC_DATABASE === 'true' || isTesting ? true : false,
     },
     client: {
         url: process.env.CLIENT_URL as string,
