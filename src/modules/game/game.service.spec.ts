@@ -1,18 +1,35 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { GameService } from './game.service';
+import { GameModule } from './game.module';
+import { UserModule } from '../user/user.module';
+import { DatabaseModule } from '../database/database.module';
+import { ZipService } from '../../services/zip.service';
+import { GameMapper } from '../../mapper/game-mapper';
+import { GameController } from './game.controller';
+import { UserRepository } from '../../entities/user.entity';
+import { GameRepository } from '../../entities/game.entity';
+import { HashService } from '../../services/hash.service';
 
 describe('GameService', () => {
-    let service: GameService;
+    let gameService: GameService;
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
-            providers: [GameService],
+            imports: [DatabaseModule, UserModule, GameModule],
+            providers: [
+                GameMapper,
+                HashService,
+                ZipService,
+                UserRepository,
+                GameRepository,
+            ],
+            exports: [],
         }).compile();
 
-        service = module.get<GameService>(GameService);
+        gameService = module.get<GameService>(GameService);
     });
 
-    it('should be defined', () => {
-        expect(service).toBeDefined();
+    it('game service should be defined', () => {
+        expect(gameService).toBeDefined();
     });
 });
