@@ -24,7 +24,10 @@ import { ZipService } from '../../services/zip.service';
                 const error = new BadRequestException(
                     'Only zip files are allowed',
                 );
-                if (file.mimetype === 'application/zip') {
+                if (
+                    file.mimetype === 'application/zip' ||
+                    file.mimetype === 'application/x-zip-compressed'
+                ) {
                     cb(null, true);
                 } else {
                     cb(error);
