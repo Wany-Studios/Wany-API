@@ -40,7 +40,5 @@ RUN npm i -g pm2 @nestjs/cli typeorm
 COPY --from=builder /usr/src/app/dist ./dist
 COPY public ./public
 
-EXPOSE 3000
-
-CMD ["sh", "-c", "typeorm migration:run -d dist/modules/database/database.data-source.js && npm run start:prod"]
+CMD ["sh", "-c", "typeorm migration:run -d dist/modules/database/database.data-source.js || true && npm run start:prod"]
 #--------------------------------------------------------------
