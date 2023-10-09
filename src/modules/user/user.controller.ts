@@ -23,7 +23,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes, ApiTags, ApiBody, ApiOkResponse } from '@nestjs/swagger';
-import { UserEntity } from '../../entities/user.entity';
+import { UserEntity, UserSituation } from '../../entities/user.entity';
 import { getRoutes } from '../../helpers/get-routes.helper';
 
 @ApiTags('user')
@@ -38,7 +38,12 @@ export class UserController {
     @Get('/me')
     async getMe(
         @Req() req: Request,
-    ): Promise<Partial<UserEntity> & { avatar_url: string }> {
+    ): Promise<
+        Partial<UserEntity> & {
+            avatar_url: string;
+            account_is_verified: boolean;
+        }
+    > {
         const user = await this.userService.findUserById(req.user.id!);
 
         if (isError(user)) {
@@ -54,6 +59,8 @@ export class UserController {
             birth_date: user.birth_date,
             updated_at: user.updated_at,
             created_at: user.created_at,
+            account_is_verified:
+                (user.situation! & UserSituation.NotVerified) === 0,
             avatar_url: getRoutes().avatar_url.replace(
                 '{username}',
                 user.username!,
