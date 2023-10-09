@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, ConflictException, Controller, Post } from '@nestjs/common';
 import { ResendEmailDto } from '../../dtos/resend-email.dto';
 import { validateOrReject } from 'class-validator';
 import { EmailConfirmationService } from './email-confirmation/email-confirmation.service';
@@ -28,9 +28,7 @@ export class EmailController {
         throwErrorOrContinue(user);
 
         if ((user.situation! & UserSituation.NotVerified) === 0) {
-            return {
-                message: 'Your account is already verified',
-            };
+            throw new ConflictException('Your account is already verified');
         }
 
         /*
