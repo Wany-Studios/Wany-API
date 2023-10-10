@@ -36,9 +36,7 @@ export class UserController {
     })
     @UseGuards(EnsureAuthGuard)
     @Get('/me')
-    async getMe(
-        @Req() req: Request,
-    ): Promise<
+    async getMe(@Req() req: Request): Promise<
         Partial<UserEntity> & {
             avatar_url: string;
             account_is_verified: boolean;

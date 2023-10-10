@@ -15,7 +15,6 @@ import {
     ValidationPipe,
 } from '@nestjs/common';
 import { CreateUserDto } from '../../dtos/create-user.dto';
-import { validateOrReject } from 'class-validator';
 import { EnsureAuthGuard } from './auth.guard';
 import { UserService } from '../user/user.service';
 import {
