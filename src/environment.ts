@@ -63,15 +63,23 @@ const environment = Object.freeze({
     },
     public: {
         rootPath: path.join(__dirname, '..', 'public'),
-        gamesPath: path.join(__dirname, '..', 'public', 'games'),
+        gamesPath: '',
     },
     upload: {
-        gamesPath: path.join(__dirname, 'uploads', 'games'),
-        avatarPath: path.join(__dirname, 'uploads', 'avatars'),
+        rootPath: path.join(__dirname, '..', 'uploads'),
+        gamesPath: '',
+        avatarPath: '',
     },
     isDevelopment,
     isTesting,
 });
+
+environment.public.gamesPath = path.join(environment.public.rootPath, 'games');
+environment.upload.gamesPath = path.join(environment.upload.rootPath, 'games');
+environment.upload.avatarPath = path.join(
+    environment.upload.rootPath,
+    'uploads',
+);
 
 if (isTesting) {
     environment.database.type = 'sqlite';
