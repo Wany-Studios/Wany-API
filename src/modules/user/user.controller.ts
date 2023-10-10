@@ -25,6 +25,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes, ApiTags, ApiBody, ApiOkResponse } from '@nestjs/swagger';
 import { UserEntity, UserSituation } from '../../entities/user.entity';
 import { getRoutes } from '../../helpers/get-routes.helper';
+import { join } from 'node:path';
 
 @ApiTags('user')
 @Controller('user')
@@ -88,6 +89,10 @@ export class UserController {
         @Req() req: Request,
         @UploadedFile() file: Express.Multer.File,
     ): Promise<{ message: string }> {
+        if (!file) {
+            throw new BadRequestException('No image was provided');
+        }
+
         const { user } = req;
         const { filename } = file;
 
@@ -113,7 +118,7 @@ export class UserController {
         if (isError(userAvatar)) throw userAvatar;
         if (!userAvatar) throw new Error("User don't have avatar");
 
-        const path = environment.upload.avatarPath + userAvatar;
+        const path = join(environment.upload.avatarPath, userAvatar);
 
         if (!(await checkFileExists(path))) {
             throw new NotFoundException('Avatar not found');

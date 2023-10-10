@@ -78,7 +78,7 @@ environment.public.gamesPath = path.join(environment.public.rootPath, 'games');
 environment.upload.gamesPath = path.join(environment.upload.rootPath, 'games');
 environment.upload.avatarPath = path.join(
     environment.upload.rootPath,
-    'uploads',
+    'avatar',
 );
 
 if (isTesting) {

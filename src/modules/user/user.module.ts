@@ -18,9 +18,6 @@ import { FileFilterCallback, diskStorage } from 'multer';
                 file: Express.Multer.File,
                 cb: FileFilterCallback,
             ) => {
-                const error = new BadRequestException(
-                    'Only image files are allowed',
-                );
                 const [type] = file.mimetype.split('/');
                 const isImage = type === 'image';
 
@@ -29,7 +26,9 @@ import { FileFilterCallback, diskStorage } from 'multer';
                     return;
                 }
 
-                return cb(error);
+                return cb(
+                    new BadRequestException('Only image files are allowed'),
+                );
             },
             storage: diskStorage({
                 destination: environment.upload.avatarPath,
