@@ -26,6 +26,7 @@ import { ApiConsumes, ApiTags, ApiBody, ApiOkResponse } from '@nestjs/swagger';
 import { UserEntity, UserSituation } from '../../entities/user.entity';
 import { getRoutes } from '../../helpers/get-routes.helper';
 import { join } from 'node:path';
+import * as fs from 'node:fs';
 
 @ApiTags('user')
 @Controller('user')
@@ -124,7 +125,7 @@ export class UserController {
             throw new NotFoundException('Avatar not found');
         }
 
-        res.sendFile(path);
+        return fs.createReadStream(path).pipe(res);
     }
 
     @ApiOkResponse({
