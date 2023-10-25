@@ -55,7 +55,7 @@ export class GameService {
     }): Promise<[Game[], number]> {
         const [entities, count] = await this.gameRepository.findAndCount({
             cache: true,
-            order: { [data.sort]: 'desc' },
+            order: { [data.sort]: 'asc' },
         });
 
         const start =
