@@ -32,7 +32,6 @@ export class GameMapper {
         gameEntity.genre = game.genre;
         return gameEntity;
     }
-
     toHTTP(game: Game) {
         return JSON.parse(
             JSON.stringify({

@@ -6,6 +6,7 @@ import {
     Get,
     Param,
     Post,
+    Query,
     Req,
     UnauthorizedException,
     UploadedFile,
@@ -119,12 +120,52 @@ export class GameController {
         };
     }
 
-    @Get('/public')
-    async search(): Promise<{ games: Game[] }> {
-        const games = await this.gameService.find();
+    @ApiCreatedResponse({
+        description:
+            'Search for games. Returns a list of games, all games count and returned games count.',
+    })
+    @Get('/public?')
+    async search(
+        @Query('title') title?: string,
+        @Query('genre') genre?: string,
+        @Query('description') description?: string,
+        @Query('limit') limit?: number,
+        @Query('start') start?: number,
+        @Query('sort') sort?: string,
+    ): Promise<{ games: Game[]; count: number; total: number }> {
+        const sortOptions = [
+            'genre',
+            'description',
+            'title',
+            'created_at',
+            'updated_at',
+        ];
+
+        const options = {
+            limit: limit || limit != 0 ? 10 : 0,
+            start: start || 0,
+            sort: (sort && sortOptions.includes(sort) ? sort : null) || 'id',
+        };
+
+        const [games, total] = await this.gameService.findWithFilter(options);
+
+        const compare = (str1: string, str2: string) => {
+            const s1 = str1.toLowerCase().trim();
+            const s2 = str2.toLowerCase().trim();
+            return s1 === s2 || s1.includes(s2) || s2.includes(s1);
+        };
+
+        const filteredGames = games.filter(
+            (game) =>
+                (!genre || compare(genre, game.genre)) &&
+                (!title || compare(title, game.title)) &&
+                (!description || compare(description, game.description)),
+        );
 
         return {
-            games: games.map((game) => this.gameMapper.toHTTP(game)),
+            total,
+            count: filteredGames.length,
+            games: filteredGames.map(this.gameMapper.toHTTP),
         };
     }
 }

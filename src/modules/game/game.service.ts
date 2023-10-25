@@ -48,6 +48,28 @@ export class GameService {
         return entities.map((entity) => this.gameMapper.toModel(entity));
     }
 
+    async findWithFilter(data: {
+        limit: number;
+        start: number;
+        sort: string;
+    }): Promise<[Game[], number]> {
+        const [entities, count] = await this.gameRepository.findAndCount({
+            cache: true,
+            order: { [data.sort]: 'desc' },
+        });
+
+        const start =
+            data.start > entities.length ? entities.length : data.start;
+
+        const limit = start > data.limit ? start : data.limit;
+
+        const models = entities
+            .map(this.gameMapper.toModel)
+            .slice(start, limit);
+
+        return [models, count];
+    }
+
     async getGameById(
         gameId: string,
     ): Promise<Game | NotFoundException | InternalServerErrorException> {
