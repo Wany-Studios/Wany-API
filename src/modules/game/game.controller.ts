@@ -126,11 +126,11 @@ export class GameController {
     })
     @Get('/public?')
     async search(
+        @Query('limit') limit: number,
+        @Query('start') start: number,
         @Query('title') title?: string,
         @Query('genre') genre?: string,
         @Query('description') description?: string,
-        @Query('limit') limit?: number,
-        @Query('start') start?: number,
         @Query('sort') sort?: string,
     ): Promise<{ games: Game[]; count: number; total: number }> {
         const sortOptions = [
@@ -142,7 +142,7 @@ export class GameController {
         ];
 
         const options = {
-            limit: limit || limit != 0 ? 10 : 0,
+            limit: isNaN(limit) ? 10 : limit,
             start: start || 0,
             sort: (sort && sortOptions.includes(sort) ? sort : null) || 'id',
         };
