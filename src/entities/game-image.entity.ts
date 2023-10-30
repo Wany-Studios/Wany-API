@@ -6,14 +6,12 @@ import {
     ManyToOne,
     PrimaryColumn,
     Repository,
-    UpdateDateColumn,
 } from 'typeorm';
 import { Injectable } from '@nestjs/common';
-import { Genre } from '../modules/models/genre';
-import environment from '../environment';
+import { GameEntity } from './game.entity';
 
-@Entity({ name: 'game' })
-export class GameEntity {
+@Entity({ name: 'game_image' })
+export class GameImageEntity {
     @PrimaryColumn()
     id: string;
 
@@ -37,4 +35,4 @@ export class GameEntity {
 }
 
 @Injectable()
-export class GameRepository extends Repository<GameEntity> {}
+export class GameImageRepository extends Repository<GameImageEntity> {}
