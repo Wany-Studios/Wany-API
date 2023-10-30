@@ -37,7 +37,7 @@ async function bootstrap() {
             },
         }),
     );
-    // app.use(helmet());
+    app.use(helmet());
 
     if (environment.isDevelopment) {
         // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -51,6 +51,8 @@ async function bootstrap() {
         .setVersion('1.0')
         .addTag('auth', 'authentication and verification endpoints')
         .addTag('user', 'user endpoints')
+        .addTag('game', 'game endpoints')
+        .addTag('email', 'email endpoints')
         .build();
 
     SwaggerModule.setup('docs', app, SwaggerModule.createDocument(app, config));

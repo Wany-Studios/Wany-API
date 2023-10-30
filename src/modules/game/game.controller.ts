@@ -15,7 +15,12 @@ import {
     UsePipes,
     ValidationPipe,
 } from '@nestjs/common';
-import { ApiConsumes, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
+import {
+    ApiConsumes,
+    ApiCreatedResponse,
+    ApiQuery,
+    ApiTags,
+} from '@nestjs/swagger';
 import { CreateGameDto } from '../../dtos/create-game.dto';
 import { EnsureAuthGuard } from '../auth/auth.guard';
 import { GameService } from './game.service';
@@ -124,7 +129,17 @@ export class GameController {
         description:
             'Search for games. Returns a list of games, all games count and returned games count.',
     })
-    @Get('/public?')
+    @ApiQuery({ name: 'limit', required: false, type: Number })
+    @ApiQuery({ name: 'start', required: false, type: Number })
+    @ApiQuery({ name: 'title', required: false, type: String })
+    @ApiQuery({ name: 'genre', required: false, type: String })
+    @ApiQuery({ name: 'description', required: false, type: String })
+    @ApiQuery({
+        name: 'sort',
+        required: false,
+        type: String,
+    })
+    @Get('/public')
     async search(
         @Query('limit') limit: number,
         @Query('start') start: number,

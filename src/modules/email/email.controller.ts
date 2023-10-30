@@ -8,7 +8,9 @@ import { randomUUID } from 'node:crypto';
 import { EmailService } from './email.service';
 import { EmailConfirmationEntity } from '../../entities/email-confirmation.entity';
 import { UserSituation } from '../../entities/user.entity';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('email')
 @Controller('email')
 export class EmailController {
     constructor(
