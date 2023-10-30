@@ -2,9 +2,11 @@ import {
     BadRequestException,
     Body,
     Controller,
+    DefaultValuePipe,
     Delete,
     Get,
     Param,
+    ParseIntPipe,
     Post,
     Query,
     Req,
@@ -141,12 +143,12 @@ export class GameController {
     })
     @Get('/public')
     async search(
-        @Query('limit') limit: number,
-        @Query('start') start: number,
+        @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+        @Query('start', new DefaultValuePipe(0), ParseIntPipe) start: number,
         @Query('title') title?: string,
         @Query('genre') genre?: string,
         @Query('description') description?: string,
-        @Query('sort') sort?: string,
+        @Query('sort', new DefaultValuePipe('id')) sort?: string,
     ): Promise<{ games: Game[]; count: number; total: number }> {
         const sortOptions = [
             'genre',
