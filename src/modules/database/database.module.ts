@@ -5,6 +5,7 @@ import { EmailConfirmationEntity } from '../../entities/email-confirmation.entit
 import { ResetPasswordEntity } from '../../entities/reset-password.entity';
 import config from './database.config';
 import { GameEntity } from '../../entities/game.entity';
+import { GameImageEntity } from '../../entities/game-image.entity';
 
 @Module({
     imports: [
@@ -13,6 +14,7 @@ import { GameEntity } from '../../entities/game.entity';
         TypeOrmModule.forFeature([EmailConfirmationEntity]),
         TypeOrmModule.forFeature([ResetPasswordEntity]),
         TypeOrmModule.forFeature([GameEntity]),
+        TypeOrmModule.forFeature([GameImageEntity]),
     ],
     exports: [TypeOrmModule],
     providers: [],
