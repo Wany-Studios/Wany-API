@@ -11,12 +11,18 @@ import { DeleteResult, InsertResult } from 'typeorm';
 import { isError } from '../../utils';
 import { Game } from '../models/game';
 import { GameMapper } from '../../mapper/game-mapper';
+import {
+    GameImageEntity,
+    GameImageRepository,
+} from '../../entities/game-image.entity';
+import dataSource from '../database/database.data-source';
 
 @Injectable()
 export class GameService {
     constructor(
         @InjectRepository(GameEntity)
         private readonly gameRepository: GameRepository,
+        private readonly gameImageRepository: GameImageRepository,
         private readonly userService: UserService,
         private readonly gameMapper: GameMapper,
     ) {}
@@ -38,6 +44,43 @@ export class GameService {
             }
 
             return this.gameRepository.insert(entity);
+        } catch (err) {
+            return new InternalServerErrorException(err.message);
+        }
+    }
+
+    async saveGameImage(
+        gameId: string,
+        gameImageId: string,
+        gameImagePath: string,
+        isCover: boolean,
+    ): Promise<GameImageEntity | InternalServerErrorException> {
+        try {
+            const entity = this.gameImageRepository.create({
+                id: gameImageId,
+                cover: isCover,
+                game_id: gameId,
+                image_path: gameImagePath,
+            });
+
+            return await new Promise((resolve) => {
+                dataSource.transaction(async (manager) => {
+                    if (isCover) {
+                        const allGames = await manager.find(GameImageEntity, {
+                            where: { game_id: gameId },
+                        });
+
+                        Promise.allSettled(
+                            allGames.map((gameImage) => {
+                                gameImage.cover = false;
+                                return manager.save(gameImage);
+                            }),
+                        );
+                    }
+
+                    return resolve(await manager.save(entity));
+                });
+            });
         } catch (err) {
             return new InternalServerErrorException(err.message);
         }
@@ -86,10 +129,15 @@ export class GameService {
         const games = await this.gameRepository.find({
             where: { user_id: userId },
         });
+
         return games.map((entity) => this.gameMapper.toModel(entity));
     }
 
     async delete(gameId: string): Promise<DeleteResult> {
         return await this.gameRepository.delete({ id: gameId });
+    }
+
+    async deleteGameImage(gameImageId: string): Promise<DeleteResult> {
+        return await this.gameImageRepository.delete({ id: gameImageId });
     }
 }
