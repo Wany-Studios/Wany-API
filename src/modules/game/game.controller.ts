@@ -5,11 +5,15 @@ import {
     DefaultValuePipe,
     Delete,
     Get,
+    HttpStatus,
+    NotFoundException,
     Param,
+    ParseFilePipeBuilder,
     ParseIntPipe,
     Post,
     Query,
     Req,
+    Res,
     UnauthorizedException,
     UploadedFile,
     UseGuards,
@@ -20,6 +24,7 @@ import {
 import {
     ApiConsumes,
     ApiCreatedResponse,
+    ApiOkResponse,
     ApiQuery,
     ApiTags,
 } from '@nestjs/swagger';
@@ -29,6 +34,7 @@ import { GameService } from './game.service';
 import { Game } from '../models/game';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
+    checkFileExists,
     deleteFile,
     deleteFolder,
     isError,
@@ -40,7 +46,11 @@ import { Role } from '../../entities/user.entity';
 import { GameMapper } from '../../mapper/game-mapper';
 import { ZipService } from '../../services/zip.service';
 import { join } from 'node:path';
+import { GameImage } from '../models/game-image';
+import { GameImageMapper } from '../../mapper/game-image-mapper';
+import { Response } from 'express';
 import environment from '../../environment';
+import * as fs from 'fs';
 
 @ApiTags('game')
 @Controller('game')
@@ -49,6 +59,7 @@ export class GameController {
         private readonly gameService: GameService,
         private readonly userService: UserService,
         private readonly gameMapper: GameMapper,
+        private readonly gameImageMapper: GameImageMapper,
         private readonly zipService: ZipService,
     ) {}
 
@@ -63,7 +74,14 @@ export class GameController {
     async create(
         @Req() req: Request,
         @Body() data: CreateGameDto,
-        @UploadedFile() file: Express.Multer.File,
+        @UploadedFile(
+            new ParseFilePipeBuilder()
+                .addFileTypeValidator({
+                    fileType: 'zip',
+                })
+                .build(),
+        )
+        file: Express.Multer.File,
     ): Promise<{ message: string; game: Game }> {
         if (!file) {
             throw new BadRequestException('File is required');
@@ -100,12 +118,125 @@ export class GameController {
         };
     }
 
+    @ApiOkResponse({
+        description: 'Returns game image.',
+    })
+    @Get('/game/images/:game-image-id')
+    async getGameImage(
+        @Res() res: Response,
+        @Param('game-image-id') gameImageId: string,
+    ) {
+        const gameImage = await this.gameService.getGameImageById(gameImageId);
+
+        throwErrorOrContinue(gameImage);
+
+        const path = join(environment.upload.gamesPath, gameImage.imagePath);
+
+        if (!(await checkFileExists(path))) {
+            throw new NotFoundException('Game image not found');
+        }
+
+        return fs.createReadStream(path).pipe(res);
+    }
+
+    @ApiOkResponse({
+        description: 'Delete an image from a game. Returns a success message.',
+    })
+    @UseGuards(EnsureAuthGuard)
+    @Delete('/game/images/:game-image-id')
+    async deleteGameImage(
+        @Req() req: Request,
+        @Param('game-image-id') gameImageId: string,
+    ): Promise<{ message: string }> {
+        if (
+            !(await this.gameService.verifyUserOwnGameImage(
+                req.user.id,
+                gameImageId,
+            ))
+        ) {
+            throw new UnauthorizedException(
+                "You don't have access to this game",
+            );
+        }
+
+        const gameImage = await this.gameService.getGameImageById(gameImageId);
+
+        throwErrorOrContinue(gameImage);
+
+        await deleteFile(
+            join(environment.upload.gamesPath, gameImage.imagePath),
+        );
+
+        throwErrorOrContinue(
+            await this.gameService.deleteGameImage(gameImageId),
+        );
+
+        return {
+            message: 'Game deleted sucessfully',
+        };
+    }
+
     @ApiCreatedResponse({
+        description: 'Add an image to a game. Returns a success message.',
+    })
+    @UseGuards(EnsureAuthGuard)
+    @Post('/game/:id/images')
+    @UseInterceptors(FileInterceptor('file'))
+    @UsePipes(new ValidationPipe())
+    @ApiConsumes('multipart/form-data')
+    async createGameImage(
+        @Req() req: Request,
+        @Param('id') gameId: string,
+        @Query('cover') cover: boolean,
+        @UploadedFile(
+            new ParseFilePipeBuilder()
+                .addFileTypeValidator({
+                    fileType: /\.(jpg|jpeg|png)$/,
+                })
+                .addMaxSizeValidator({
+                    maxSize: 1000,
+                })
+                .build({
+                    errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+                }),
+        )
+        file: Express.Multer.File,
+    ): Promise<{ message: string; gameImage: GameImage }> {
+        if (!file) {
+            throw new BadRequestException('File is required');
+        }
+        const { path } = file;
+        const gameImage = new GameImage({
+            gameId,
+            cover,
+            imagePath: path,
+        });
+
+        if (!(await this.gameService.verifyUserOwnGame(req.user.id, gameId))) {
+            throw new UnauthorizedException(
+                "You don't have access to this game",
+            );
+        }
+
+        const result = await this.gameService.saveGameImage(gameImage);
+
+        if (isError(result)) {
+            await deleteFile(path);
+            throw result;
+        }
+
+        return {
+            message: `The game was saved successfully.`,
+            gameImage: this.gameImageMapper.toHTTP(gameImage),
+        };
+    }
+
+    @ApiOkResponse({
         description: 'Delete a game. Returns a success message.',
     })
     @UseGuards(EnsureAuthGuard)
     @Delete('/delete/:id')
-    async delete(
+    async deleteGame(
         @Param('id') gameId: string,
         @Req() req: Request,
     ): Promise<{ message: string }> {
@@ -121,13 +252,14 @@ export class GameController {
             );
         }
         await deleteFile(join(environment.public.gamesPath, game.gamePath));
-        await this.gameService.delete(game.id);
+        await this.gameService.deleteGame(game.id);
+
         return {
             message: 'Game deleted sucessfully',
         };
     }
 
-    @ApiCreatedResponse({
+    @ApiOkResponse({
         description:
             'Search for games. Returns a list of games, all games count and returned games count.',
     })

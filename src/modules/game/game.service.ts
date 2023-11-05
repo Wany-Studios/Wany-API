@@ -8,7 +8,7 @@ import { GameEntity, GameRepository } from '../../entities/game.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserService } from '../user/user.service';
 import { DeleteResult, InsertResult } from 'typeorm';
-import { isError } from '../../utils';
+import { isError, throwErrorOrContinue } from '../../utils';
 import { Game } from '../models/game';
 import { GameMapper } from '../../mapper/game-mapper';
 import {
@@ -16,6 +16,8 @@ import {
     GameImageRepository,
 } from '../../entities/game-image.entity';
 import dataSource from '../database/database.data-source';
+import { GameImage } from '../models/game-image';
+import { GameImageMapper } from '../../mapper/game-image-mapper';
 
 @Injectable()
 export class GameService {
@@ -25,6 +27,7 @@ export class GameService {
         private readonly gameImageRepository: GameImageRepository,
         private readonly userService: UserService,
         private readonly gameMapper: GameMapper,
+        private readonly gameImageMapper: GameImageMapper,
     ) {}
 
     async create(
@@ -49,25 +52,62 @@ export class GameService {
         }
     }
 
-    async saveGameImage(
-        gameId: string,
+    async deleteGameImage(
         gameImageId: string,
-        gameImagePath: string,
-        isCover: boolean,
-    ): Promise<GameImageEntity | InternalServerErrorException> {
+    ): Promise<
+        DeleteResult | InternalServerErrorException | NotFoundException
+    > {
+        try {
+            const exists = await this.gameImageRepository.exist({
+                where: { id: gameImageId },
+            });
+
+            if (!exists) {
+                return new NotFoundException('Game image not found');
+            }
+
+            return await this.gameImageRepository.delete({
+                id: gameImageId,
+            });
+        } catch (err) {
+            return new InternalServerErrorException(err.message);
+        }
+    }
+
+    async getGameImageById(
+        gameImageId: string,
+    ): Promise<GameImage | InternalServerErrorException | NotFoundException> {
+        try {
+            const entity = await this.gameImageRepository.findOneBy({
+                id: gameImageId,
+            });
+
+            if (!entity) {
+                return new NotFoundException('Game image not found');
+            }
+
+            return this.gameImageMapper.toModel(entity);
+        } catch (err) {
+            return new InternalServerErrorException(err.message);
+        }
+    }
+
+    async saveGameImage(
+        gameImage: GameImage,
+    ): Promise<GameImage | InternalServerErrorException> {
         try {
             const entity = this.gameImageRepository.create({
-                id: gameImageId,
-                cover: isCover,
-                game_id: gameId,
-                image_path: gameImagePath,
+                id: gameImage.id,
+                cover: gameImage.cover,
+                game_id: gameImage.gameId,
+                image_path: gameImage.imagePath,
             });
 
             return await new Promise((resolve) => {
                 dataSource.transaction(async (manager) => {
-                    if (isCover) {
+                    if (gameImage.cover) {
                         const allGames = await manager.find(GameImageEntity, {
-                            where: { game_id: gameId },
+                            where: { game_id: gameImage.gameId },
                         });
 
                         Promise.allSettled(
@@ -78,7 +118,11 @@ export class GameService {
                         );
                     }
 
-                    return resolve(await manager.save(entity));
+                    const gameImageEntity = await manager.save(entity);
+
+                    return resolve(
+                        this.gameImageMapper.toModel(gameImageEntity),
+                    );
                 });
             });
         } catch (err) {
@@ -113,6 +157,55 @@ export class GameService {
         return [models, count];
     }
 
+    async verifyUserExists(userId: string): Promise<boolean> {
+        try {
+            const userExists = await this.gameRepository.exist({
+                where: {
+                    id: userId,
+                },
+            });
+
+            return userExists;
+        } catch (err) {
+            throw new InternalServerErrorException(err.message);
+        }
+    }
+
+    async verifyUserOwnGameImage(
+        userId: string,
+        gameImageId: string,
+    ): Promise<boolean> {
+        try {
+            if (!(await this.verifyUserExists(userId))) {
+                throw new NotFoundException('User not exists');
+            }
+
+            const gameImage = await this.getGameImageById(gameImageId);
+
+            throwErrorOrContinue(gameImage);
+
+            return await this.verifyUserOwnGame(userId, gameImage.gameId);
+        } catch (err) {
+            throw new InternalServerErrorException(err.message);
+        }
+    }
+
+    async verifyUserOwnGame(userId: string, gameId: string): Promise<boolean> {
+        try {
+            if (!(await this.verifyUserExists(userId))) {
+                throw new NotFoundException('User not exists');
+            }
+
+            const game = await this.getGameById(gameId);
+
+            throwErrorOrContinue(game);
+
+            return game.userId === userId;
+        } catch (err) {
+            throw new InternalServerErrorException(err.message);
+        }
+    }
+
     async getGameById(
         gameId: string,
     ): Promise<Game | NotFoundException | InternalServerErrorException> {
@@ -133,11 +226,7 @@ export class GameService {
         return games.map((entity) => this.gameMapper.toModel(entity));
     }
 
-    async delete(gameId: string): Promise<DeleteResult> {
+    async deleteGame(gameId: string): Promise<DeleteResult> {
         return await this.gameRepository.delete({ id: gameId });
-    }
-
-    async deleteGameImage(gameImageId: string): Promise<DeleteResult> {
-        return await this.gameImageRepository.delete({ id: gameImageId });
     }
 }

@@ -20,6 +20,11 @@ export function getRoutes() {
         public_game_url: join('public/games/{game-path}/'),
         create_game_url: join('game/create/'),
         delete_game_url: join('game/delete/{id}/'),
+        // game images
+        add_game_image_url: join('game/{id}/images/'),
+        remove_game_image_url: join('game/images/{game-image-id}'),
+        public_game_image_url: join('game/images/{game-image-id}'),
+        // public url
         public_url: join('public/'),
     };
 }

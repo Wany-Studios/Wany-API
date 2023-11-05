@@ -16,23 +16,23 @@ import { ZipService } from '../../services/zip.service';
         UserModule,
         MulterModule.register({
             preservePath: true,
-            fileFilter: (
-                req: Express.Request,
-                file: Express.Multer.File,
-                cb: FileFilterCallback,
-            ) => {
-                const error = new BadRequestException(
-                    'Only zip files are allowed',
-                );
-                if (
-                    file.mimetype === 'application/zip' ||
-                    file.mimetype === 'application/x-zip-compressed'
-                ) {
-                    cb(null, true);
-                } else {
-                    cb(error);
-                }
-            },
+            // fileFilter: (
+            //     req: Express.Request,
+            //     file: Express.Multer.File,
+            //     cb: FileFilterCallback,
+            // ) => {
+            //     const error = new BadRequestException(
+            //         'Only zip files are allowed',
+            //     );
+            //     if (
+            //         file.mimetype === 'application/zip' ||
+            //         file.mimetype === 'application/x-zip-compressed'
+            //     ) {
+            //         cb(null, true);
+            //     } else {
+            //         cb(error);
+            //     }
+            // },
             storage: diskStorage({
                 destination: environment.upload.gamesPath,
                 filename(req, file, cb) {
