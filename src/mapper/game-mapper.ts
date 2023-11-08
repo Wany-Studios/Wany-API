@@ -43,6 +43,10 @@ export class GameMapper {
                 updatedAt: game.updatedAt,
                 title: game.title,
                 userId: game.userId,
+                add_game_image_url: getRoutes().add_game_image_url.replace(
+                    '{id}',
+                    game.id,
+                ),
                 public_game_url: getRoutes().public_game_url.replace(
                     '{game-path}',
                     game.gamePath,
@@ -53,8 +57,11 @@ export class GameMapper {
                         imageId,
                     ),
                 ),
-                game_url: getRoutes().get_game_url.replace('{id}', game.id),
-                delete_url: getRoutes().delete_game_url.replace(
+                public_get_game_url: getRoutes().public_get_game_url.replace(
+                    '{id}',
+                    game.id,
+                ),
+                delete_game_url: getRoutes().delete_game_url.replace(
                     '{id}',
                     game.id,
                 ),

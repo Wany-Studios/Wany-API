@@ -33,10 +33,6 @@ export class GameImageMapper {
                 cover: gameImage.cover,
                 gameId: gameImage.gameId,
                 createdAt: gameImage.createdAt,
-                addGameImageUrl: getRoutes().add_game_image_url.replace(
-                    '{id}',
-                    gameImage.gameId,
-                ),
                 removeGameImageUrl: getRoutes().remove_game_image_url.replace(
                     '{game-image-id}',
                     gameImage.id,
