@@ -6,6 +6,7 @@ interface Props {
     title: string;
     description: string;
     gamePath: string;
+    imageIDs: string[];
     createdAt: Date;
     updatedAt?: Date;
     userId: string;
@@ -23,12 +24,14 @@ export class Game {
             createdAt?: Date;
             updatedAt?: Date;
             userId: string;
+            imageIDs?: string[];
             gamePath: string;
         },
         id?: string,
     ) {
         this.props = {
             ...props,
+            imageIDs: props.imageIDs || [],
             createdAt: props.createdAt || new Date(),
         };
         this.id = id || randomUUID();
@@ -68,6 +71,13 @@ export class Game {
 
     get updatedAt(): Date | undefined {
         return this.props.updatedAt;
+    }
+
+    get imageIDs() {
+        return this.props.imageIDs;
+    }
+    set imageIDs(paths: string[]) {
+        this.props.imageIDs = paths;
     }
 
     get gamePath() {

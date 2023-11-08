@@ -4,12 +4,10 @@ import {
     Controller,
     DefaultValuePipe,
     Delete,
-    FileValidator,
     Get,
     HttpStatus,
     NotFoundException,
     Param,
-    ParseFilePipe,
     ParseFilePipeBuilder,
     ParseIntPipe,
     Post,
@@ -79,7 +77,7 @@ export class GameController {
         @UploadedFile(
             new ParseFilePipeBuilder()
                 .addFileTypeValidator({
-                    fileType: 'zip',
+                    fileType: /.zip/,
                 })
                 .build(),
         )
@@ -285,7 +283,6 @@ export class GameController {
             'created_at',
             'updated_at',
         ];
-
         const options = {
             limit: isNaN(limit) ? 10 : limit,
             start: start || 0,

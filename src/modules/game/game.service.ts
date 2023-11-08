@@ -7,7 +7,7 @@ import {
 import { GameEntity, GameRepository } from '../../entities/game.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserService } from '../user/user.service';
-import { DeleteResult, InsertResult, Transaction } from 'typeorm';
+import { DeleteResult, InsertResult } from 'typeorm';
 import { isError, throwErrorOrContinue } from '../../utils';
 import { Game } from '../models/game';
 import { GameMapper } from '../../mapper/game-mapper';
@@ -139,6 +139,14 @@ export class GameService {
         return entities.map((entity) => this.gameMapper.toModel(entity));
     }
 
+    async findGameImageIDs(gameId: string): Promise<string[]> {
+        const gameImages = await this.gameImageRepository.findBy({
+            game_id: gameId,
+        });
+
+        return gameImages.map((gameImage) => gameImage.id);
+    }
+
     async findWithFilter(data: {
         limit: number;
         start: number;
@@ -154,9 +162,15 @@ export class GameService {
 
         const limit = start > data.limit ? start : data.limit;
 
-        const models = entities
-            .map(this.gameMapper.toModel)
-            .slice(start, limit);
+        const models = await Promise.all(
+            entities
+                .map(this.gameMapper.toModel)
+                .slice(start, limit)
+                .map(async (model) => {
+                    model.imageIDs = await this.findGameImageIDs(model.id);
+                    return model;
+                }),
+        );
 
         return [models, count];
     }
