@@ -7,7 +7,7 @@ import {
 import { GameEntity, GameRepository } from '../../entities/game.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserService } from '../user/user.service';
-import { DeleteResult, InsertResult } from 'typeorm';
+import { DeleteResult, InsertResult, Transaction } from 'typeorm';
 import { isError, throwErrorOrContinue } from '../../utils';
 import { Game } from '../models/game';
 import { GameMapper } from '../../mapper/game-mapper';
@@ -24,6 +24,7 @@ export class GameService {
     constructor(
         @InjectRepository(GameEntity)
         private readonly gameRepository: GameRepository,
+        @InjectRepository(GameImageEntity)
         private readonly gameImageRepository: GameImageRepository,
         private readonly userService: UserService,
         private readonly gameMapper: GameMapper,
@@ -95,36 +96,39 @@ export class GameService {
     async saveGameImage(
         gameImage: GameImage,
     ): Promise<GameImage | InternalServerErrorException> {
+        await dataSource.initialize();
+
         try {
-            const entity = this.gameImageRepository.create({
+            const gameImageCreated = this.gameImageRepository.create({
                 id: gameImage.id,
                 cover: gameImage.cover,
                 game_id: gameImage.gameId,
                 image_path: gameImage.imagePath,
             });
 
-            return await new Promise((resolve) => {
+            const promise: Promise<GameImage> = new Promise((resolve) => {
                 dataSource.transaction(async (manager) => {
+                    const gameImages = await manager.find(GameImageEntity, {
+                        where: { game_id: gameImage.gameId },
+                    });
+
                     if (gameImage.cover) {
-                        const allGames = await manager.find(GameImageEntity, {
-                            where: { game_id: gameImage.gameId },
+                        const promises = gameImages.map(async (gameImages) => {
+                            gameImage.cover = false;
+                            return await manager.save(gameImages);
                         });
 
-                        Promise.allSettled(
-                            allGames.map((gameImage) => {
-                                gameImage.cover = false;
-                                return manager.save(gameImage);
-                            }),
-                        );
+                        await Promise.allSettled(promises);
                     }
 
-                    const gameImageEntity = await manager.save(entity);
+                    const entity = await manager.save(gameImageCreated);
+                    const model = this.gameImageMapper.toModel(entity);
 
-                    return resolve(
-                        this.gameImageMapper.toModel(gameImageEntity),
-                    );
+                    return resolve(model);
                 });
             });
+
+            return await promise;
         } catch (err) {
             return new InternalServerErrorException(err.message);
         }
@@ -159,12 +163,7 @@ export class GameService {
 
     async verifyUserExists(userId: string): Promise<boolean> {
         try {
-            const userExists = await this.gameRepository.exist({
-                where: {
-                    id: userId,
-                },
-            });
-
+            const userExists = !!this.userService.findUserById(userId);
             return userExists;
         } catch (err) {
             throw new InternalServerErrorException(err.message);

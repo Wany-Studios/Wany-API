@@ -1,14 +1,15 @@
-import { BadRequestException, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { GameService } from './game.service';
 import { GameController } from './game.controller';
 import { DatabaseModule } from '../database/database.module';
 import { MulterModule } from '@nestjs/platform-express';
-import { FileFilterCallback, diskStorage } from 'multer';
-import environment from '../../environment';
+import { diskStorage } from 'multer';
 import { randomUUID } from 'node:crypto';
 import { GameMapper } from '../../mapper/game-mapper';
 import { UserModule } from '../user/user.module';
 import { ZipService } from '../../services/zip.service';
+import environment from '../../environment';
+import { GameImageMapper } from '../../mapper/game-image-mapper';
 
 @Module({
     imports: [
@@ -16,23 +17,6 @@ import { ZipService } from '../../services/zip.service';
         UserModule,
         MulterModule.register({
             preservePath: true,
-            // fileFilter: (
-            //     req: Express.Request,
-            //     file: Express.Multer.File,
-            //     cb: FileFilterCallback,
-            // ) => {
-            //     const error = new BadRequestException(
-            //         'Only zip files are allowed',
-            //     );
-            //     if (
-            //         file.mimetype === 'application/zip' ||
-            //         file.mimetype === 'application/x-zip-compressed'
-            //     ) {
-            //         cb(null, true);
-            //     } else {
-            //         cb(error);
-            //     }
-            // },
             storage: diskStorage({
                 destination: environment.upload.gamesPath,
                 filename(req, file, cb) {
@@ -44,7 +28,7 @@ import { ZipService } from '../../services/zip.service';
             }),
         }),
     ],
-    providers: [GameService, GameMapper, ZipService],
+    providers: [GameService, GameMapper, GameImageMapper, ZipService],
     controllers: [GameController],
     exports: [GameService],
 })

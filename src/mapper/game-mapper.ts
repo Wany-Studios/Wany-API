@@ -46,6 +46,8 @@ export class GameMapper {
                     '{game-path}',
                     game.gamePath,
                 ),
+                public_game_images_url:
+                    getRoutes().public_game_image_url.replace('{id}', game.id),
                 game_url: getRoutes().get_game_url.replace('{id}', game.id),
                 delete_url: getRoutes().delete_game_url.replace(
                     '{id}',

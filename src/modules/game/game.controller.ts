@@ -4,10 +4,12 @@ import {
     Controller,
     DefaultValuePipe,
     Delete,
+    FileValidator,
     Get,
     HttpStatus,
     NotFoundException,
     Param,
+    ParseFilePipe,
     ParseFilePipeBuilder,
     ParseIntPipe,
     Post,
@@ -121,11 +123,8 @@ export class GameController {
     @ApiOkResponse({
         description: 'Returns game image.',
     })
-    @Get('/game/images/:game-image-id')
-    async getGameImage(
-        @Res() res: Response,
-        @Param('game-image-id') gameImageId: string,
-    ) {
+    @Get('/public/images/:id')
+    async getGameImage(@Res() res: Response, @Param('id') gameImageId: string) {
         const gameImage = await this.gameService.getGameImageById(gameImageId);
 
         throwErrorOrContinue(gameImage);
@@ -143,7 +142,7 @@ export class GameController {
         description: 'Delete an image from a game. Returns a success message.',
     })
     @UseGuards(EnsureAuthGuard)
-    @Delete('/game/images/:game-image-id')
+    @Delete('/images/:game-image-id')
     async deleteGameImage(
         @Req() req: Request,
         @Param('game-image-id') gameImageId: string,
@@ -180,7 +179,7 @@ export class GameController {
         description: 'Add an image to a game. Returns a success message.',
     })
     @UseGuards(EnsureAuthGuard)
-    @Post('/game/:id/images')
+    @Post('/:id/images')
     @UseInterceptors(FileInterceptor('file'))
     @UsePipes(new ValidationPipe())
     @ApiConsumes('multipart/form-data')
@@ -191,10 +190,7 @@ export class GameController {
         @UploadedFile(
             new ParseFilePipeBuilder()
                 .addFileTypeValidator({
-                    fileType: /\.(jpg|jpeg|png)$/,
-                })
-                .addMaxSizeValidator({
-                    maxSize: 1000,
+                    fileType: /.(jpg|jpeg|png)/,
                 })
                 .build({
                     errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
@@ -205,11 +201,11 @@ export class GameController {
         if (!file) {
             throw new BadRequestException('File is required');
         }
-        const { path } = file;
+        const { path, filename } = file;
         const gameImage = new GameImage({
             gameId,
             cover,
-            imagePath: path,
+            imagePath: filename,
         });
 
         if (!(await this.gameService.verifyUserOwnGame(req.user.id, gameId))) {
