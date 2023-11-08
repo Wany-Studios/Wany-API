@@ -136,7 +136,15 @@ export class GameService {
 
     async find(): Promise<Game[]> {
         const entities = await this.gameRepository.find({ cache: true });
-        return entities.map((entity) => this.gameMapper.toModel(entity));
+
+        return await Promise.all(
+            entities
+                .map((entity) => this.gameMapper.toModel(entity))
+                .map(async (model) => {
+                    model.imageIDs = await this.findGameImageIDs(model.id);
+                    return model;
+                }),
+        );
     }
 
     async findGameImageIDs(gameId: string): Promise<string[]> {
@@ -225,7 +233,9 @@ export class GameService {
         try {
             const entity = await this.gameRepository.findOneBy({ id: gameId });
             if (!entity) return new NotFoundException('Game not found');
-            return this.gameMapper.toModel(entity);
+            const model = this.gameMapper.toModel(entity);
+            model.imageIDs = await this.findGameImageIDs(model.id);
+            return model;
         } catch (err) {
             return new InternalServerErrorException(err.message);
         }
@@ -236,7 +246,14 @@ export class GameService {
             where: { user_id: userId },
         });
 
-        return games.map((entity) => this.gameMapper.toModel(entity));
+        return await Promise.all(
+            games
+                .map((entity) => this.gameMapper.toModel(entity))
+                .map(async (model) => {
+                    model.imageIDs = await this.findGameImageIDs(model.id);
+                    return model;
+                }),
+        );
     }
 
     async deleteGame(gameId: string): Promise<DeleteResult> {
