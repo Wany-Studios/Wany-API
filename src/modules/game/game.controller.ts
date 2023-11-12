@@ -25,6 +25,7 @@ import {
     ApiConsumes,
     ApiCreatedResponse,
     ApiOkResponse,
+    ApiProperty,
     ApiQuery,
     ApiTags,
 } from '@nestjs/swagger';
@@ -51,6 +52,7 @@ import { GameImageMapper } from '../../mapper/game-image-mapper';
 import { Response } from 'express';
 import environment from '../../environment';
 import * as fs from 'fs';
+import { CreateGameImageDto } from '../../dtos/create-game-image.dto';
 
 @ApiTags('game')
 @Controller('game')
@@ -140,10 +142,10 @@ export class GameController {
         description: 'Delete an image from a game. Returns a success message.',
     })
     @UseGuards(EnsureAuthGuard)
-    @Delete('/images/:game-image-id')
+    @Delete('/images/:gameImageId')
     async deleteGameImage(
         @Req() req: Request,
-        @Param('game-image-id') gameImageId: string,
+        @Param('gameImageId') gameImageId: string,
     ): Promise<{ message: string }> {
         if (
             !(await this.gameService.verifyUserOwnGameImage(
@@ -169,7 +171,7 @@ export class GameController {
         );
 
         return {
-            message: 'Game deleted sucessfully',
+            message: 'Game image was deleted sucessfully',
         };
     }
 
@@ -185,6 +187,7 @@ export class GameController {
         @Req() req: Request,
         @Param('id') gameId: string,
         @Query('cover') cover: boolean,
+        @Body() data: CreateGameImageDto,
         @UploadedFile(
             new ParseFilePipeBuilder()
                 .addFileTypeValidator({
@@ -220,7 +223,7 @@ export class GameController {
         }
 
         return {
-            message: `The game was saved successfully.`,
+            message: `The game image was saved successfully.`,
             gameImage: this.gameImageMapper.toHTTP(gameImage),
         };
     }

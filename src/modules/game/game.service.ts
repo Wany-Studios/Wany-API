@@ -18,6 +18,7 @@ import {
 import dataSource from '../database/database.data-source';
 import { GameImage } from '../models/game-image';
 import { GameImageMapper } from '../../mapper/game-image-mapper';
+import { Role } from '../../entities/user.entity';
 
 @Injectable()
 export class GameService {
@@ -187,6 +188,16 @@ export class GameService {
         try {
             const userExists = !!this.userService.findUserById(userId);
             return userExists;
+        } catch (err) {
+            throw new InternalServerErrorException(err.message);
+        }
+    }
+
+    async verifyUserIsAdmin(userId: string): Promise<boolean> {
+        try {
+            const user = await this.userService.findUserById(userId);
+            throwErrorOrContinue(user);
+            return user.role === Role.Admin;
         } catch (err) {
             throw new InternalServerErrorException(err.message);
         }
