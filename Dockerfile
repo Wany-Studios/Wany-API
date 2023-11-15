@@ -35,10 +35,10 @@ RUN npm i -g npm@7.24.0
 RUN npm ci --only=production
 
 # Install global packages
-RUN npm i -g pm2 @nestjs/cli typeorm
+RUN npm i -g pm2 @nestjs/cli
 
 COPY --from=builder /usr/src/app/dist ./dist
 COPY public ./public
 
-CMD ["sh", "-c", "typeorm migration:run -d dist/modules/database/database.data-source.js || true && npm run start:prod"]
+CMD ["sh", "-c", "npx --no-install typeorm migration:run -d dist/modules/database/database.data-source.js || true && npm run start:prod"]
 #--------------------------------------------------------------
