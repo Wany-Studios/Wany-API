@@ -187,7 +187,7 @@ export class GameController {
         @Req() req: Request,
         @Param('id') gameId: string,
         @Query('cover') cover: boolean,
-        @Body() data: CreateGameImageDto,
+        @Body() { file: _ }: CreateGameImageDto,
         @UploadedFile(
             new ParseFilePipeBuilder()
                 .addFileTypeValidator({

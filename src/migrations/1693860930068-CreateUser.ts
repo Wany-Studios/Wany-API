@@ -34,6 +34,10 @@ export class CreateUser1693860930068 implements MigrationInterface {
                         isNullable: true,
                     },
                     {
+                        name: 'bio',
+                        type: 'varchar',
+                    },
+                    {
                         name: 'avatar',
                         type: 'varchar',
                         default: "'default.png'",

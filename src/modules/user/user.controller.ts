@@ -4,16 +4,19 @@ import {
     deleteFile,
     handleIsInternalServerError,
     isError,
+    throwErrorOrContinue,
 } from '../../utils';
 import { EnsureAuthGuard } from '../auth/auth.guard';
 import { Request, Response } from 'express';
 import environment from '../../environment';
 import {
     BadRequestException,
+    Body,
     Controller,
     Get,
     NotFoundException,
     Param,
+    Patch,
     Post,
     Req,
     Res,
@@ -27,6 +30,7 @@ import { UserEntity, UserSituation } from '../../entities/user.entity';
 import { getRoutes } from '../../helpers/get-routes.helper';
 import { join } from 'node:path';
 import * as fs from 'node:fs';
+import { UpdateUserDto } from '../../dtos/update-user.dto';
 
 @ApiTags('user')
 @Controller('user')
@@ -65,6 +69,50 @@ export class UserController {
                 '{username}',
                 user.username!,
             ),
+        };
+    }
+
+    @ApiOkResponse({
+        description:
+            'Update user data. Returns success message and updated user.',
+    })
+    @UseGuards(EnsureAuthGuard)
+    @Patch('/me')
+    async updateUser(
+        @Res() req: Request,
+        @Body() data: UpdateUserDto,
+    ): Promise<{
+        message: string;
+        user: Partial<UserEntity> & {
+            avatar_url: string;
+            account_is_verified: boolean;
+        };
+    }> {
+        const result = await this.userService.update(req.user.id!, { ...data });
+
+        throwErrorOrContinue(result);
+
+        const user = await this.userService.findUserById(req.user.id);
+
+        throwErrorOrContinue(user);
+
+        return {
+            message: 'User data updated successfully',
+            user: {
+                id: user.id,
+                email: user.email,
+                username: user.username,
+                role: user.role,
+                birth_date: user.birth_date,
+                updated_at: user.updated_at,
+                created_at: user.created_at,
+                account_is_verified:
+                    (user.situation! & UserSituation.NotVerified) === 0,
+                avatar_url: getRoutes().avatar_url.replace(
+                    '{username}',
+                    user.username!,
+                ),
+            },
         };
     }
 

@@ -48,6 +48,9 @@ export class UserEntity {
     @Column({ unique: true })
     email?: string;
 
+    @Column({ default: '' })
+    bio?: string;
+
     @Column()
     password?: string;
 

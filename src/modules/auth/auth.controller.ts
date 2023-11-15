@@ -66,7 +66,7 @@ export class AuthController {
             role: Role.User,
         });
 
-        if (isError(result)) throw result;
+        throwErrorOrContinue(result);
 
         const user = await this.userService.findUserByUsername(data.username);
 
