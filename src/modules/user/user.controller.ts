@@ -1,8 +1,10 @@
 import { UserService } from './user.service';
 import {
+    CriticalException,
     checkFileExists,
     deleteFile,
     handleIsInternalServerError,
+    is,
     isError,
     throwErrorOrContinue,
 } from '../../utils';
@@ -23,6 +25,8 @@ import {
     UploadedFile,
     UseGuards,
     UseInterceptors,
+    UsePipes,
+    ValidationPipe,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes, ApiTags, ApiBody, ApiOkResponse } from '@nestjs/swagger';
@@ -60,6 +64,7 @@ export class UserController {
             email: user.email,
             username: user.username,
             role: user.role,
+            bio: user.bio,
             birth_date: user.birth_date,
             updated_at: user.updated_at,
             created_at: user.created_at,
@@ -78,8 +83,9 @@ export class UserController {
     })
     @UseGuards(EnsureAuthGuard)
     @Patch('/me')
+    @UsePipes(new ValidationPipe())
     async updateUser(
-        @Res() req: Request,
+        @Req() req: Request,
         @Body() data: UpdateUserDto,
     ): Promise<{
         message: string;
@@ -88,13 +94,27 @@ export class UserController {
             account_is_verified: boolean;
         };
     }> {
-        const result = await this.userService.update(req.user.id!, { ...data });
+        const { bio, dateOfBirth, password, username } = data;
+        const result = await this.userService.update(req.user.id!, {
+            bio,
+            birth_date: dateOfBirth,
+            password,
+            username,
+        });
 
         throwErrorOrContinue(result);
 
         const user = await this.userService.findUserById(req.user.id);
 
-        throwErrorOrContinue(user);
+        if (isError(user)) {
+            if (is(user, NotFoundException)) {
+                throw new CriticalException(
+                    'A critical error has occurred. Your account seems to be updated, but apparently something went wrong. Please report this to the Wany team.',
+                );
+            }
+
+            throw user;
+        }
 
         return {
             message: 'User data updated successfully',
@@ -103,6 +123,7 @@ export class UserController {
                 email: user.email,
                 username: user.username,
                 role: user.role,
+                bio: user.bio,
                 birth_date: user.birth_date,
                 updated_at: user.updated_at,
                 created_at: user.created_at,
@@ -196,6 +217,7 @@ export class UserController {
             id: user.id,
             username: user.username,
             email: user.email,
+            bio: user.bio,
             avatar_url: getRoutes().avatar_url.replace(
                 '{username}',
                 user.username!,

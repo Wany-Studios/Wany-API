@@ -28,10 +28,15 @@ export class UserService {
             }
 
             const updatedData = await this.userRepository.save({
-                ...userDataToUpdate,
-                bio: userDataToUpdate.bio?.trim(),
-                username: userDataToUpdate.username?.toLowerCase(),
-                email: userDataToUpdate.email?.toLowerCase(),
+                birth_date: userDataToUpdate.birth_date ?? undefined,
+                bio: userDataToUpdate.bio?.trim() ?? undefined,
+                username: userDataToUpdate.username?.toLowerCase() ?? undefined,
+                email: userDataToUpdate.email?.toLowerCase() ?? undefined,
+                password: userDataToUpdate.password
+                    ? await this.hashService.hashPassword(
+                          userDataToUpdate.password!,
+                      )
+                    : undefined,
                 id: userId,
             });
 
