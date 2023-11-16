@@ -6,6 +6,7 @@ export function getRoutes() {
     return {
         avatar_url: join('user/public/{username}/avatar/'),
         current_user_url: join('user/me/'),
+        update_user_url: join('user/me'),
         forgot_password_url: join('auth/forgot-password/'),
         login_url: join('auth/signin/'),
         logout_url: join('auth/logout/'),
