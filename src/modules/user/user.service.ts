@@ -70,6 +70,7 @@ export class UserService {
 
             return await this.userRepository.insert({
                 ...user,
+                bio: '',
                 username: user.username!.toLocaleLowerCase(),
                 email: user.email!.toLocaleLowerCase(),
                 password: await this.hashService.hashPassword(user.password!),

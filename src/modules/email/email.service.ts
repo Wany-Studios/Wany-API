@@ -42,7 +42,7 @@ export class EmailService {
     }
 
     async sendResetPasswordTokenEmail(user: UserEntity, token: string) {
-        const resetPasswordEndpoint = `${environment.client.url}reset-password?token=${token}`;
+        const resetPasswordEndpoint = `${environment.server.url}reset-password?token=${token}`;
 
         return await this.sendEmail(
             user.email!,
