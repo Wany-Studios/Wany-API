@@ -28,7 +28,7 @@ export class UserService {
             }
 
             const updatedData = await this.userRepository.save({
-                birth_date: userDataToUpdate.birth_date ?? undefined,
+                ...userDataToUpdate,
                 bio: userDataToUpdate.bio?.trim() ?? undefined,
                 username: userDataToUpdate.username?.toLowerCase() ?? undefined,
                 email: userDataToUpdate.email?.toLowerCase() ?? undefined,

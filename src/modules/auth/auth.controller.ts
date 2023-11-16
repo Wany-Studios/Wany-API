@@ -156,7 +156,9 @@ export class AuthController {
             }),
         );
 
-        req.user.situation = newUserSituationWithoutNotVerified;
+        try {
+            req.user.situation = newUserSituationWithoutNotVerified;
+        } catch (e) {}
 
         return {
             message: 'Email verified successfully',
