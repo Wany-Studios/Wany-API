@@ -104,6 +104,16 @@ export class UserController {
         };
     }> {
         const { bio, dateOfBirth, password, username } = data;
+
+        if (!!username) {
+            const user = await this.userService.findUserByUsername(username);
+            if (user) {
+                throw new BadRequestException(
+                    `Username ${username} already in use`,
+                );
+            }
+        }
+
         const result = await this.userService.update(req.user.id!, {
             bio,
             birth_date: dateOfBirth,
