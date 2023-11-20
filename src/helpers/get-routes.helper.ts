@@ -13,7 +13,7 @@ export function getRoutes() {
         reset_password_url: join('auth/reset-password/'),
         send_verification_email_url: join('email/resend-verification-email'),
         signup_url: join('auth/signup/'),
-        user_url: join('user/public/{username}/'),
+        user_url: join('user/public/{username}?byId={byId}'),
         upload_avatar_url: join('user/upload-avatar/'),
         public_get_game_url: join('game/{id}/'),
         search_games_url: join('game/public'),

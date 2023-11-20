@@ -15,11 +15,14 @@ import {
     BadRequestException,
     Body,
     Controller,
+    DefaultValuePipe,
     Get,
     NotFoundException,
     Param,
+    ParseBoolPipe,
     Patch,
     Post,
+    Query,
     Req,
     Res,
     UploadedFile,
@@ -29,7 +32,13 @@ import {
     ValidationPipe,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiConsumes, ApiTags, ApiBody, ApiOkResponse } from '@nestjs/swagger';
+import {
+    ApiConsumes,
+    ApiTags,
+    ApiBody,
+    ApiOkResponse,
+    ApiQuery,
+} from '@nestjs/swagger';
 import { UserEntity, UserSituation } from '../../entities/user.entity';
 import { getRoutes } from '../../helpers/get-routes.helper';
 import { join } from 'node:path';
@@ -200,13 +209,21 @@ export class UserController {
     @ApiOkResponse({
         description: 'Returns user data with username.',
     })
+    @ApiQuery({ name: 'byId', required: false, type: Boolean })
     @Get('/public/:username')
-    async byUsername(@Req() req: Request, @Param('username') username: string) {
-        if (!username || !username.trim()) {
+    async byUsername(
+        @Req() req: Request,
+        @Param('username') usernameOrId: string,
+        @Query('byId', new DefaultValuePipe(false), ParseBoolPipe)
+        byId: boolean,
+    ) {
+        if (!usernameOrId || !usernameOrId.trim()) {
             throw new BadRequestException('Username cannot be empty');
         }
 
-        const user = await this.userService.findUserByUsername(username);
+        const user = !byId
+            ? await this.userService.findUserByUsername(usernameOrId)
+            : await this.userService.findUserById(usernameOrId);
 
         if (isError(user)) {
             handleIsInternalServerError(user);
