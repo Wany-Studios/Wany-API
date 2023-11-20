@@ -24,6 +24,7 @@ export function getRoutes() {
         add_game_image_url: join('game/{id}/images/'),
         remove_game_image_url: join('game/images/{game-image-id}'),
         public_game_image_url: join('game/public/images/{game-image-id}'),
+        my_games_url: join('game/my'),
         public_url: join('public/'),
     };
 }

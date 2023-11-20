@@ -8,6 +8,7 @@ import {
     HttpStatus,
     NotFoundException,
     Param,
+    ParseBoolPipe,
     ParseFilePipeBuilder,
     ParseIntPipe,
     Post,
@@ -253,6 +254,19 @@ export class GameController {
 
         return {
             message: 'Game deleted sucessfully',
+        };
+    }
+
+    @ApiOkResponse({
+        description: 'Get current user games',
+    })
+    @UseGuards(EnsureAuthGuard)
+    @Get('/my')
+    async getMyGames(@Req() req: Request): Promise<{ games: Game[] }> {
+        const games = await this.gameService.findGamesByUserId(req.user.id);
+
+        return {
+            games: games.map(this.gameMapper.toHTTP),
         };
     }
 
