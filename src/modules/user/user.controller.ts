@@ -108,7 +108,7 @@ export class UserController {
 
         if (!!username) {
             const user = await this.userService.findUserByUsername(username);
-            if (user) {
+            if (is(user, UserEntity)) {
                 throw new BadRequestException(
                     `Username ${username} already in use`,
                 );
