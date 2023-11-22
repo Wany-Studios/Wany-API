@@ -16,6 +16,7 @@ import {
     Body,
     Controller,
     DefaultValuePipe,
+    Delete,
     Get,
     NotFoundException,
     Param,
@@ -250,6 +251,19 @@ export class UserController {
                 user.username!,
             ),
             role: user.role,
+        };
+    }
+
+    @UseGuards(EnsureAuthGuard)
+    @ApiOkResponse({
+        description: 'Returns user data with username.',
+    })
+    @ApiQuery({ name: 'byId', required: false, type: Boolean })
+    @Delete()
+    async delete(@Req() req: Request) {
+        await this.userService.delete(req.user.id);
+        return {
+            message: 'Account deleted successfully',
         };
     }
 }
