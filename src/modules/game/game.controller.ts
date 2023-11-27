@@ -8,7 +8,6 @@ import {
     HttpStatus,
     NotFoundException,
     Param,
-    ParseBoolPipe,
     ParseFilePipeBuilder,
     ParseIntPipe,
     Post,
@@ -311,7 +310,7 @@ export class GameController {
         const compare = (str1: string, str2: string) => {
             const s1 = str1.toLowerCase().trim();
             const s2 = str2.toLowerCase().trim();
-            return s1 === s2 || s1.includes(s2) || s2.includes(s1);
+            return s1 === s2;
         };
 
         const filteredGames = games.filter(
