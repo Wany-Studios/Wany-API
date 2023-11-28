@@ -240,7 +240,7 @@ export class AuthController {
 
             throwErrorOrContinue(
                 await this.userService.update(user.id, {
-                    password: await this.hashService.hashPassword(newPassword),
+                    password: newPassword,
                 }),
             );
 
