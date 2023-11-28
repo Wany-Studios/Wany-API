@@ -3,7 +3,7 @@ import { Match } from '../helpers/class-validator/match.decorator';
 import { Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
-export abstract class ResetPasswordDto {
+export abstract class ResetPasswordFormDto {
     @ApiProperty({
         description: 'Email address of the user',
     })

@@ -16,8 +16,7 @@ export class EmailService {
             user.email!,
             environment.mail.from,
             'Email Confirmation',
-            `
-            <!DOCTYPE html>
+            `<!DOCTYPE html>
             <html>
             <head>
                 <title>Welcome to Wany!</title>
@@ -29,11 +28,40 @@ export class EmailService {
 
                 <br />
 
-                <p>${user.username!.toUpperCase()}, Your email confirmation token is: ${
+                <p>
+                    ${user.username!.toUpperCase()}, Your email confirmation token is: ${
                 emailCofirmation.token
-            }</p>
+            }
+                </p>
                 <p>Sincerely,</p>
+                <p><strong>Wany's Team</strong></p>
+            </body>
+            </html>
+            `,
+        );
+    }
 
+    async sendNewPasswordEmail(user: UserEntity, newPassword: string) {
+        return await this.sendEmail(
+            user.email!,
+            environment.mail.from,
+            'New Password',
+            `<!DOCTYPE html>
+            <html>
+            <head>
+                <title>New Password - Wany</title>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            </head>
+            <body>
+                <h1>New Password</h1>
+
+                <br />
+
+                <p>Hello ${user.username!.toUpperCase()},</p>
+                <p>We have received a request to reset your password for your account on Wany.</p>
+                <p>Your new password is: ${newPassword}</p>
+                <p>Best,</p>
                 <p><strong>Wany's Team</strong></p>
             </body>
             </html>
@@ -42,7 +70,7 @@ export class EmailService {
     }
 
     async sendResetPasswordTokenEmail(user: UserEntity, token: string) {
-        const resetPasswordEndpoint = `${environment.server.url}reset-password?token=${token}`;
+        const resetPasswordEndpoint = `${environment.server.url}auth/reset-password?token=${token}&email=${user.email}`;
 
         return await this.sendEmail(
             user.email!,

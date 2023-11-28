@@ -31,7 +31,7 @@ import { EmailConfirmationService } from '../email/email-confirmation/email-conf
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { TokenService } from '../../services/token.service';
-import { ResetPasswordDto } from '../../dtos/reset-password.dto';
+import { ResetPasswordFormDto } from '../../dtos/reset-password-form.dto';
 import { HashService } from '../../services/hash.service';
 import { ApiTags, ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
 import { AuthenticateDto } from '../../dtos/authenticate.dto';
@@ -156,6 +156,10 @@ export class AuthController {
             }),
         );
 
+        throwErrorOrContinue(
+            await this.emailService.sendWelcomeNewUserEmail(user),
+        );
+
         try {
             req.user.situation = newUserSituationWithoutNotVerified;
         } catch (e) {}
@@ -200,10 +204,69 @@ export class AuthController {
         description:
             'The user password was recovered. Returns a success message.',
     })
-    @Put('/reset-password')
+    @Get('/reset-password')
     @UsePipes(new ValidationPipe())
     async resetPassword(
-        @Body() payload: ResetPasswordDto,
+        @Query('token') token: string,
+        @Query('email') email: string,
+    ) {
+        try {
+            const resetPassword =
+                await this.authService.findResetPasswordByToken(token);
+
+            throwErrorOrContinue(resetPassword);
+
+            const user = await this.userService.findUserById(
+                resetPassword.user_id,
+            );
+
+            throwErrorOrContinue(user);
+
+            if (user.email !== email) {
+                throw new UnauthorizedException('Wrong email address');
+            }
+
+            if (resetPassword.used || resetPassword.is_expired) {
+                throw new UnauthorizedException('This token is expired');
+            }
+
+            throwErrorOrContinue(
+                await this.authService.markResetPasswordAsUsed(
+                    resetPassword.id,
+                ),
+            );
+
+            const newPassword = this.tokenService.generatePassword();
+
+            throwErrorOrContinue(
+                await this.userService.update(user.id, {
+                    password: await this.hashService.hashPassword(newPassword),
+                }),
+            );
+
+            const emailResult = await this.emailService.sendNewPasswordEmail(
+                user,
+                newPassword,
+            );
+
+            if (isError(emailResult)) {
+                return "We couldn't send the email. Please, try again.";
+            }
+
+            return 'A new password was sent to your email address.';
+        } catch (err) {
+            return `Failed to reset password: ${err.message}`;
+        }
+    }
+
+    @ApiOkResponse({
+        description:
+            'The user password was recovered. Returns a success message.',
+    })
+    @Put('/form-reset-password')
+    @UsePipes(new ValidationPipe())
+    async resetPasswordForm(
+        @Body() payload: ResetPasswordFormDto,
     ): Promise<{ message: string }> {
         const resetPassword = await this.authService.findResetPasswordByToken(
             payload.token,
