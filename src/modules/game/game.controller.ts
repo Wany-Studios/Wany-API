@@ -25,7 +25,6 @@ import {
     ApiConsumes,
     ApiCreatedResponse,
     ApiOkResponse,
-    ApiProperty,
     ApiQuery,
     ApiTags,
 } from '@nestjs/swagger';
@@ -307,10 +306,16 @@ export class GameController {
 
         const [games, total] = await this.gameService.findWithFilter(options);
 
-        const compare = (str1: string, str2: string) => {
+        const compare = (str1: string, str2: string): boolean => {
             const s1 = str1.toLowerCase().trim();
             const s2 = str2.toLowerCase().trim();
-            return s1 === s2;
+
+            if (s1.replaceAll(/\s/g, '') === s2.replaceAll(/\s/g, ''))
+                return true;
+
+            const filterFn = (token: string) => s2.search(token) > -1;
+
+            return s1.split(/\s+/).filter(filterFn).length > 0;
         };
 
         const filteredGames = games.filter(
